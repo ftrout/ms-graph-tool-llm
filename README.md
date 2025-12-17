@@ -1,4 +1,4 @@
-# Graph-Sentinel-Agent
+# Microsoft Graph Agent Model
 
 **An Enterprise-Grade Tool-Calling AI for Microsoft Graph**
 
@@ -36,8 +36,8 @@
 
 1. **Clone the Repository**
 ```bash
-git clone https://github.com/your-username/Graph-Sentinel-Agent.git
-cd Graph-Sentinel-Agent
+git clone https://github.com/ftrout/ms-graph-ai-agent-model
+cd ms-graph-ai-agent-model
 ```
 
 
@@ -126,7 +126,7 @@ Graph-Sentinel-Agent/
 | Component | Specification |
 | --- | --- |
 | **Base Model** | Qwen 2.5 7B Instruct |
-| **Format** | ChatML (`< |
+| **Format** | ChatML |
 | **Quantization** | 4-bit NF4 (Normal Float 4) |
 | **Adapter Rank (r)** | 16 |
 | **Target Modules** | `all-linear` (q, k, v, o, gate, up, down) |
