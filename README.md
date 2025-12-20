@@ -1,8 +1,8 @@
-# Microsoft Graph Agent Model
+# Microsoft Graph AI Agent Model
 
 **An Enterprise-Grade Tool-Calling AI for Microsoft Graph**
 
-`Graph-Sentinel-Agent` is a specialized AI pipeline that fine-tunes the **Qwen 2.5 (7B)** Large Language Model to function as an autonomous agent for the Microsoft Graph API. Unlike generic chatbots, this model is trained via **Schema-First Learning** to reliably translate natural language user intent into precise, schema-validated JSON tool calls.
+This is a specialized AI pipeline that fine-tunes the **Qwen 2.5 (7B)** Large Language Model to function as an autonomous agent for the Microsoft Graph API. Unlike generic chatbots, this model is trained via **Schema-First Learning** to reliably translate natural language user intent into precise, schema-validated JSON tool calls.
 
 ---
 
@@ -66,29 +66,29 @@ python 1_graph_api_harvester.py
 ```
 
 * **Input:** `https://raw.githubusercontent.com.../openapi.yaml`
-* **Output:** `./data_graph/graph_tool_dataset.jsonl`
+* **Output:** `./data/graph_tool_dataset.jsonl`
 
-#### Step 2: Fine-Tuning (`2_train_graph_agent.py`)
+#### Step 2: Fine-Tuning (`2_train_graph_agent_model.py`)
 
 Trains the Qwen 2.5 model using QLoRA. This step teaches the model to ignore conversational fluff and focus strictly on generating valid JSON tool calls.
 
 ```bash
-python 2_train_graph_agent.py
+python 2_train_graph_agent_model.py
 ```
 
 * **Base Model:** `Qwen/Qwen2.5-7B-Instruct`
-* **Output:** `./graph-sentinel-v1` (The trained LoRA adapter)
+* **Output:** `./ms-graph-v1` (The trained LoRA adapter)
 * **Duration:** ~1-3 hours on an RTX 3090.
 
-#### Step 3: Evaluation (`3_evaluate_agent.py`)
+#### Step 3: Evaluation (`3_evaluate_model.py`)
 
 Runs the "Judge" script to validate the model's performance against a known tool definition. It checks for:
 
 1. Valid JSON syntax.
-2. Correct argument hallucination (e.g., ensuring OData filters like `$filter` are applied correctly).
+2. Correct argument handling (e.g., ensuring OData filters like `$filter` are applied correctly).
 
 ```bash
-python 3_evaluate_agent.py
+python 3_evaluate_model.py
 ```
 
 #### Step 4: Interactive Demo (`4_interactive_graph.py`)
@@ -104,19 +104,19 @@ python 4_interactive_graph.py
 ### 📂 Project Structure
 
 ```text
-Graph-Sentinel-Agent/
-├── data_graph/               # Generated training datasets
+ms-graph-ai-agent-model/
+├── data/                      # Generated training datasets
 │   └── graph_tool_dataset.jsonl
-├── graph-sentinel-v1/        # Saved Model Adapters (after training)
+├── ms-graph-v1/               # Saved Model Adapters (after training)
 │   ├── adapter_config.json
 │   └── adapter_model.safetensors
-├── results_graph/            # Checkpoints during training
-├── 1_graph_api_harvester.py  # Data Engine
-├── 2_train_graph_agent.py    # Training Lab
-├── 3_evaluate_agent.py       # The Judge
-├── 4_interactive_graph.py    # Interactive CLI
-├── requirements.txt          # Dependencies
-└── README.md                 # Documentation
+├── results/                   # Checkpoints during training
+├── 1_graph_api_harvester.py   # Data Engine
+├── 2_train_graph_agent_model.py  # Training Lab
+├── 3_evaluate_model.py        # The Judge
+├── 4_interactive_graph.py     # Interactive CLI
+├── requirements.txt           # Dependencies
+└── README.md                  # Documentation
 ```
 
 ---
@@ -128,7 +128,7 @@ Graph-Sentinel-Agent/
 | **Base Model** | Qwen 2.5 7B Instruct |
 | **Format** | ChatML |
 | **Quantization** | 4-bit NF4 (Normal Float 4) |
-| **Adapter Rank (r)** | 16 |
+| **Adapter Rank (r)** | 32 |
 | **Target Modules** | `all-linear` (q, k, v, o, gate, up, down) |
 | **Context Window** | 2048 tokens (optimized for tool calls) |
 
