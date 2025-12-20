@@ -1,9 +1,19 @@
 import torch
 import os
+import logging
+from typing import Dict, List, Any
 from datasets import load_dataset
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 from trl import SFTTrainer, SFTConfig
+
+# --- LOGGING CONFIGURATION ---
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+logger = logging.getLogger(__name__)
 
 # --- CONFIGURATION ---
 MODEL_ID = "Qwen/Qwen2.5-7B-Instruct"
@@ -11,9 +21,19 @@ NEW_MODEL_NAME = "ms-graph-v1"
 DATA_FILE = "./data/graph_tool_dataset.jsonl"
 OUTPUT_DIR = "./results"
 
-def format_chat_template(examples, tokenizer):
+def format_chat_template(examples: Dict[str, List[str]], tokenizer: Any) -> List[str]:
     """
-    Applies the model's specific chat template to the instruction/input/output triplets.
+    Applies the model's chat template to instruction/input/output triplets.
+
+    Converts training examples into the ChatML format expected by Qwen models,
+    with system prompt, user request (with tool definition), and assistant response.
+
+    Args:
+        examples: Batch of examples with 'instruction', 'input', 'output' keys
+        tokenizer: Tokenizer with apply_chat_template method
+
+    Returns:
+        List[str]: Formatted chat strings with special tokens (<|im_start|>, etc.)
     """
     texts = []
     # Handle batch processing
@@ -32,8 +52,23 @@ def format_chat_template(examples, tokenizer):
         texts.append(text)
     return texts
 
-def train():
-    print(f"Loading Qwen 2.5 from {MODEL_ID}...")
+def train() -> None:
+    """
+    Fine-tunes Qwen 2.5 7B model for Microsoft Graph tool calling using QLoRA.
+
+    This function:
+    1. Validates and loads the training dataset
+    2. Configures 4-bit quantization for memory efficiency
+    3. Loads the base model with Flash Attention 2 (or SDPA fallback)
+    4. Applies LoRA adapters to key layers
+    5. Trains using supervised fine-tuning (SFT)
+    6. Saves the trained adapter weights
+
+    Raises:
+        FileNotFoundError: If training dataset doesn't exist
+        ValueError: If dataset is empty
+    """
+    logger.info("Starting training pipeline for %s", MODEL_ID)
 
     # 1. Validate Dataset Exists
     if not os.path.exists(DATA_FILE):
@@ -44,6 +79,7 @@ def train():
 
     # 2. Load and Split Dataset
     # We use a simulated split strategy here. In production, split by 'tool_family'.
+    logger.info("Loading dataset from %s...", DATA_FILE)
     dataset = load_dataset("json", data_files=DATA_FILE, split="train")
 
     if len(dataset) == 0:
@@ -51,8 +87,9 @@ def train():
             f"Dataset is empty! Check {DATA_FILE} and regenerate if necessary."
         )
 
-    print(f"Loaded {len(dataset)} training examples.")
+    logger.info("Loaded %d training examples", len(dataset))
     dataset = dataset.train_test_split(test_size=0.05, seed=42)
+    logger.info("Split: %d train, %d test", len(dataset["train"]), len(dataset["test"]))
 
     # 3. Quantization Config (4-bit for memory efficiency)
     bnb_config = BitsAndBytesConfig(
@@ -65,22 +102,23 @@ def train():
     # 4. Load Model
     # Try Flash Attention 2, fallback to SDPA if unavailable
     try:
-        print("Attempting to load model with Flash Attention 2...")
+        logger.info("Attempting to load model with Flash Attention 2...")
         model = AutoModelForCausalLM.from_pretrained(
             MODEL_ID,
             quantization_config=bnb_config,
             device_map="auto",
             attn_implementation="flash_attention_2"
         )
-        print("Successfully loaded with Flash Attention 2")
+        logger.info("Successfully loaded with Flash Attention 2")
     except Exception as e:
-        print(f"Flash Attention 2 not available, falling back to SDPA: {e}")
+        logger.warning("Flash Attention 2 not available, falling back to SDPA: %s", e)
         model = AutoModelForCausalLM.from_pretrained(
             MODEL_ID,
             quantization_config=bnb_config,
             device_map="auto",
             attn_implementation="sdpa"
         )
+        logger.info("Successfully loaded with SDPA attention")
     
     # Enable gradient checkpointing to save VRAM
     model = prepare_model_for_kbit_training(model)
@@ -130,13 +168,18 @@ def train():
         args=sft_config
     )
 
-    print("Starting Training...")
+    logger.info("Starting training...")
+    logger.info("Training configuration: %d epochs, batch size %d, gradient accumulation %d",
+                sft_config.num_train_epochs,
+                sft_config.per_device_train_batch_size,
+                sft_config.gradient_accumulation_steps)
+
     trainer.train()
-    
-    print(f"Saving Model to {NEW_MODEL_NAME}...")
+
+    logger.info("Training complete! Saving model to %s...", NEW_MODEL_NAME)
     trainer.model.save_pretrained(NEW_MODEL_NAME)
     tokenizer.save_pretrained(NEW_MODEL_NAME)
-    print("Done.")
+    logger.info("Model saved successfully to %s", NEW_MODEL_NAME)
 
 if __name__ == "__main__":
     train()
