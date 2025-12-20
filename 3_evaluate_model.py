@@ -24,6 +24,11 @@ TEST_QUERY = "Find the user with email 'admin@contoso.com' and select their id."
 
 def evaluate():
     print(f"Loading Adapter from {ADAPTER_PATH}...")
+
+    # Detect available device
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    print(f"Using device: {device}")
+
     try:
         base = AutoModelForCausalLM.from_pretrained(
             BASE_MODEL, load_in_4bit=True, device_map="auto", torch_dtype=torch.bfloat16
@@ -38,9 +43,9 @@ def evaluate():
         {"role": "system", "content": "You are an AI Agent for Microsoft Graph. Given the user request and the available tool definition, generate the correct JSON tool call."},
         {"role": "user", "content": f"User Request: {TEST_QUERY}\nAvailable Tool: {json.dumps(TEST_TOOL)}"}
     ]
-    
+
     prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-    inputs = tokenizer(prompt, return_tensors="pt").to("cuda")
+    inputs = tokenizer(prompt, return_tensors="pt").to(device)
     
     print("Generating...")
     with torch.no_grad():

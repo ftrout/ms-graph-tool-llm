@@ -32,12 +32,15 @@ def load_model():
         return None, None
 
 def run_inference(model, tokenizer, user_input, tool_def):
+    # Detect available device
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+
     messages = [
         {"role": "system", "content": "You are an AI Agent for Microsoft Graph. Given the user request and the available tool definition, generate the correct JSON tool call."},
         {"role": "user", "content": f"User Request: {user_input}\nAvailable Tool: {json.dumps(tool_def)}"}
     ]
     prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-    inputs = tokenizer(prompt, return_tensors="pt").to("cuda")
+    inputs = tokenizer(prompt, return_tensors="pt").to(device)
     
     with torch.no_grad():
         outputs = model.generate(**inputs, max_new_tokens=256, temperature=0.1)

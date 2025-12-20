@@ -34,13 +34,27 @@ def format_chat_template(examples, tokenizer):
 
 def train():
     print(f"Loading Qwen 2.5 from {MODEL_ID}...")
-    
-    # 1. Load and Split Dataset
+
+    # 1. Validate Dataset Exists
+    if not os.path.exists(DATA_FILE):
+        raise FileNotFoundError(
+            f"Dataset not found at {DATA_FILE}. "
+            f"Please run 1_graph_api_harvester.py first to generate training data."
+        )
+
+    # 2. Load and Split Dataset
     # We use a simulated split strategy here. In production, split by 'tool_family'.
     dataset = load_dataset("json", data_files=DATA_FILE, split="train")
+
+    if len(dataset) == 0:
+        raise ValueError(
+            f"Dataset is empty! Check {DATA_FILE} and regenerate if necessary."
+        )
+
+    print(f"Loaded {len(dataset)} training examples.")
     dataset = dataset.train_test_split(test_size=0.05, seed=42)
 
-    # 2. Quantization Config (4-bit for memory efficiency)
+    # 3. Quantization Config (4-bit for memory efficiency)
     bnb_config = BitsAndBytesConfig(
         load_in_4bit=True,
         bnb_4bit_quant_type="nf4",
@@ -48,23 +62,35 @@ def train():
         bnb_4bit_use_double_quant=True,
     )
 
-    # 3. Load Model
-    model = AutoModelForCausalLM.from_pretrained(
-        MODEL_ID,
-        quantization_config=bnb_config,
-        device_map="auto",
-        attn_implementation="flash_attention_2"  # Requires A100/H100 or Ampere GPUs. Use "sdpa" or "eager" otherwise.
-    )
+    # 4. Load Model
+    # Try Flash Attention 2, fallback to SDPA if unavailable
+    try:
+        print("Attempting to load model with Flash Attention 2...")
+        model = AutoModelForCausalLM.from_pretrained(
+            MODEL_ID,
+            quantization_config=bnb_config,
+            device_map="auto",
+            attn_implementation="flash_attention_2"
+        )
+        print("Successfully loaded with Flash Attention 2")
+    except Exception as e:
+        print(f"Flash Attention 2 not available, falling back to SDPA: {e}")
+        model = AutoModelForCausalLM.from_pretrained(
+            MODEL_ID,
+            quantization_config=bnb_config,
+            device_map="auto",
+            attn_implementation="sdpa"
+        )
     
     # Enable gradient checkpointing to save VRAM
     model = prepare_model_for_kbit_training(model)
 
-    # 4. Load Tokenizer
+    # 5. Load Tokenizer
     tokenizer = AutoTokenizer.from_pretrained(MODEL_ID, trust_remote_code=True)
-    tokenizer.pad_token = tokenizer.eos_token 
+    tokenizer.pad_token = tokenizer.eos_token
     tokenizer.padding_side = "right" # SFTTrainer requires right padding for completion
 
-    # 5. LoRA Configuration
+    # 6. LoRA Configuration
     peft_config = LoraConfig(
         r=32,                    # Rank: Higher r = more parameters to train (better for complex schemas)
         lora_alpha=64,           # Alpha: Scaling factor (usually 2x rank)
@@ -74,7 +100,7 @@ def train():
         target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]
     )
 
-    # 6. Training Configuration (SFTConfig for TRL >= 0.15.0)
+    # 7. Training Configuration (SFTConfig for TRL >= 0.15.0)
     sft_config = SFTConfig(
         output_dir=OUTPUT_DIR,
         num_train_epochs=3,
@@ -93,7 +119,7 @@ def train():
         gradient_checkpointing_kwargs={"use_reentrant": False} # Important for modern PyTorch
     )
 
-    # 7. Trainer
+    # 8. Trainer
     trainer = SFTTrainer(
         model=model,
         tokenizer=tokenizer,
