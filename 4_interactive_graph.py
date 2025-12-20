@@ -4,7 +4,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 from peft import PeftModel
 
 BASE_MODEL = "Qwen/Qwen2.5-7B-Instruct"
-ADAPTER_PATH = "graph-sentinel-v1"
+ADAPTER_PATH = "ms-graph-v1"
 
 # Mock Tools for Demo
 TOOLS = {
@@ -22,14 +22,18 @@ TOOLS = {
 
 def load_model():
     print("Initializing Agent...")
-    base = AutoModelForCausalLM.from_pretrained(BASE_MODEL, load_in_4bit=True, device_map="auto", torch_dtype=torch.bfloat16)
-    model = PeftModel.from_pretrained(base, ADAPTER_PATH)
-    tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL)
-    return model, tokenizer
+    try:
+        base = AutoModelForCausalLM.from_pretrained(BASE_MODEL, load_in_4bit=True, device_map="auto", torch_dtype=torch.bfloat16)
+        model = PeftModel.from_pretrained(base, ADAPTER_PATH)
+        tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL)
+        return model, tokenizer
+    except Exception as e:
+        print(f"Error: {e}")
+        return None, None
 
 def run_inference(model, tokenizer, user_input, tool_def):
     messages = [
-        {"role": "system", "content": "You are an AI Agent for Microsoft Graph. Generate JSON tool calls."},
+        {"role": "system", "content": "You are an AI Agent for Microsoft Graph. Given the user request and the available tool definition, generate the correct JSON tool call."},
         {"role": "user", "content": f"User Request: {user_input}\nAvailable Tool: {json.dumps(tool_def)}"}
     ]
     prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
@@ -42,12 +46,14 @@ def run_inference(model, tokenizer, user_input, tool_def):
 
 if __name__ == "__main__":
     model, tokenizer = load_model()
-    print("\n--- GRAPH SENTINEL AGENT READY (Type 'quit' to exit) ---")
-    while True:
-        user_input = input("\nRequest > ")
-        if user_input.lower() in ["quit", "exit"]: break
-        
-        # Simple routing logic for the demo
-        tool_key = "mail" if "mail" in user_input or "send" in user_input else "calendar"
-        response = run_inference(model, tokenizer, user_input, TOOLS[tool_key])
-        print(f"Agent > {response}")
+    if model:
+        print("\n--- GRAPH AGENT READY (Type 'quit' to exit) ---")
+        while True:
+            user_input = input("\nRequest > ")
+            if user_input.lower() in ["quit", "exit"]: break
+            
+            # Simple routing logic for the demo (In production, use RAG/Embeddings here)
+            tool_key = "mail" if "mail" in user_input or "send" in user_input else "calendar"
+            
+            response = run_inference(model, tokenizer, user_input, TOOLS[tool_key])
+            print(f"Agent > {response}")
