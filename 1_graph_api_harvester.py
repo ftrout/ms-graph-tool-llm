@@ -5,6 +5,7 @@ import os
 import re
 import random
 import logging
+import argparse
 from typing import Dict, List, Any, Optional
 
 # --- LOGGING CONFIGURATION ---
@@ -15,10 +16,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# --- CONFIGURATION ---
-OUTPUT_DIR = "./data"
-OUTPUT_FILE = os.path.join(OUTPUT_DIR, "graph_tool_dataset.jsonl")
-OPENAPI_URL = "https://raw.githubusercontent.com/microsoftgraph/msgraph-metadata/master/openapi/v1.0/openapi.yaml"
+# --- DEFAULT CONFIGURATION ---
+DEFAULT_OUTPUT_DIR = "./data"
+DEFAULT_OPENAPI_URL = "https://raw.githubusercontent.com/microsoftgraph/msgraph-metadata/master/openapi/v1.0/openapi.yaml"
 
 PROMPT_TEMPLATES = [
     "I need to {action}.",
@@ -26,9 +26,12 @@ PROMPT_TEMPLATES = [
     "Can you {action}?",
 ]
 
-def download_spec() -> Dict[str, Any]:
+def download_spec(url: str) -> Dict[str, Any]:
     """
     Downloads the Microsoft Graph OpenAPI specification from GitHub.
+
+    Args:
+        url: URL to the OpenAPI specification YAML file
 
     Returns:
         Dict[str, Any]: Parsed YAML specification as a dictionary
@@ -36,8 +39,8 @@ def download_spec() -> Dict[str, Any]:
     Raises:
         Exception: If download fails or returns non-200 status code
     """
-    logger.info("Downloading OpenAPI Spec from %s...", OPENAPI_URL)
-    response = requests.get(OPENAPI_URL, stream=True)
+    logger.info("Downloading OpenAPI Spec from %s...", url)
+    response = requests.get(url, stream=True)
     if response.status_code == 200:
         logger.info("Successfully downloaded OpenAPI specification")
         return yaml.safe_load(response.content)
@@ -138,32 +141,45 @@ def generate_dummy_args(params: Dict[str, Any]) -> Dict[str, Any]:
     """
     args = {}
     for k, v in params['properties'].items():
+        param_type = v.get('type', 'string')
+
+        # Special handling for OData query parameters
         if k == "$filter":
             args[k] = "startswith(displayName, 'A')"
         elif k == "$select":
-            args[k] = "id,displayName"
-        elif v['type'] == 'integer':
+            # Arrays should be proper arrays, not strings
+            args[k] = ["id", "displayName"] if param_type == 'array' else "id,displayName"
+        elif k == "$orderby":
+            args[k] = ["displayName"] if param_type == 'array' else "displayName"
+        # Type-based handling
+        elif param_type == 'integer':
             args[k] = 10
-        elif v['type'] == 'boolean':
+        elif param_type == 'boolean':
             args[k] = True
+        elif param_type == 'array':
+            args[k] = [f"example_{k}_item"]
+        elif param_type == 'object':
+            args[k] = {}
         else:
             args[k] = f"example_{k}"
     return args
 
-def process_spec(spec: Dict[str, Any]) -> None:
+def process_spec(spec: Dict[str, Any], output_dir: str, output_file: str) -> None:
     """
     Processes the OpenAPI specification and generates training dataset.
 
     Args:
         spec: Parsed OpenAPI specification dictionary
+        output_dir: Directory to save the output file
+        output_file: Full path to the output JSONL file
 
     Side Effects:
-        - Creates OUTPUT_DIR if it doesn't exist
-        - Writes training data to OUTPUT_FILE in JSONL format
+        - Creates output_dir if it doesn't exist
+        - Writes training data to output_file in JSONL format
     """
-    if not os.path.exists(OUTPUT_DIR):
-        os.makedirs(OUTPUT_DIR)
-        logger.info("Created output directory: %s", OUTPUT_DIR)
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+        logger.info("Created output directory: %s", output_dir)
 
     dataset = []
 
@@ -190,14 +206,50 @@ def process_spec(spec: Dict[str, Any]) -> None:
                 continue
 
     logger.info("Generated %d training samples", len(dataset))
-    logger.info("Writing dataset to %s...", OUTPUT_FILE)
+    logger.info("Writing dataset to %s...", output_file)
 
-    with open(OUTPUT_FILE, 'w') as f:
+    with open(output_file, 'w') as f:
         for d in dataset:
             f.write(json.dumps(d) + "\n")
 
-    logger.info("Dataset successfully written to %s", OUTPUT_FILE)
+    logger.info("Dataset successfully written to %s", output_file)
+
+def main():
+    """Main entry point with CLI argument parsing."""
+    parser = argparse.ArgumentParser(
+        description="Download Microsoft Graph OpenAPI spec and generate training dataset"
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        default=DEFAULT_OUTPUT_DIR,
+        help=f"Output directory for dataset (default: {DEFAULT_OUTPUT_DIR})"
+    )
+    parser.add_argument(
+        "--output-file",
+        type=str,
+        default=None,
+        help="Output file path (default: <output-dir>/graph_tool_dataset.jsonl)"
+    )
+    parser.add_argument(
+        "--openapi-url",
+        type=str,
+        default=DEFAULT_OPENAPI_URL,
+        help="URL to OpenAPI specification YAML file"
+    )
+
+    args = parser.parse_args()
+
+    # Set output file if not specified
+    output_file = args.output_file or os.path.join(args.output_dir, "graph_tool_dataset.jsonl")
+
+    logger.info("Configuration:")
+    logger.info("  OpenAPI URL: %s", args.openapi_url)
+    logger.info("  Output directory: %s", args.output_dir)
+    logger.info("  Output file: %s", output_file)
+
+    spec = download_spec(args.openapi_url)
+    process_spec(spec, args.output_dir, output_file)
 
 if __name__ == "__main__":
-    spec = download_spec()
-    process_spec(spec)
+    main()
