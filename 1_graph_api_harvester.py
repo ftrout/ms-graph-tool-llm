@@ -107,7 +107,9 @@ def process_spec(spec):
                         "input": json.dumps(tool),
                         "output": json.dumps({"name": tool['function']['name'], "arguments": args})
                     })
-            except: continue
+            except Exception as e:
+                print(f"Warning: Failed to process {method.upper()} {path}: {e}")
+                continue
             
     print(f"Generated {len(dataset)} samples.")
     with open(OUTPUT_FILE, 'w') as f:
