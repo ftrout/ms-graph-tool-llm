@@ -1,6 +1,7 @@
 import torch
 import os
 import logging
+import argparse
 from typing import Dict, List, Any
 from datasets import load_dataset
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
@@ -15,11 +16,11 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# --- CONFIGURATION ---
-MODEL_ID = "Qwen/Qwen2.5-7B-Instruct"
-NEW_MODEL_NAME = "ms-graph-v1"
-DATA_FILE = "./data/graph_tool_dataset.jsonl"
-OUTPUT_DIR = "./results"
+# --- DEFAULT CONFIGURATION ---
+DEFAULT_MODEL_ID = "Qwen/Qwen2.5-7B-Instruct"
+DEFAULT_MODEL_NAME = "ms-graph-v1"
+DEFAULT_DATA_FILE = "./data/graph_tool_dataset.jsonl"
+DEFAULT_OUTPUT_DIR = "./results"
 
 def format_chat_template(examples: Dict[str, List[str]], tokenizer: Any) -> List[str]:
     """
@@ -52,9 +53,28 @@ def format_chat_template(examples: Dict[str, List[str]], tokenizer: Any) -> List
         texts.append(text)
     return texts
 
-def train() -> None:
+def train(
+    model_id: str,
+    output_name: str,
+    data_file: str,
+    output_dir: str,
+    epochs: int,
+    batch_size: int,
+    learning_rate: float,
+    lora_rank: int
+) -> None:
     """
     Fine-tunes Qwen 2.5 7B model for Microsoft Graph tool calling using QLoRA.
+
+    Args:
+        model_id: Base model identifier (e.g., "Qwen/Qwen2.5-7B-Instruct")
+        output_name: Name for the output adapter directory
+        data_file: Path to training dataset JSONL file
+        output_dir: Directory for training checkpoints
+        epochs: Number of training epochs
+        batch_size: Per-device training batch size
+        learning_rate: Learning rate for optimizer
+        lora_rank: LoRA adapter rank
 
     This function:
     1. Validates and loads the training dataset
@@ -68,23 +88,23 @@ def train() -> None:
         FileNotFoundError: If training dataset doesn't exist
         ValueError: If dataset is empty
     """
-    logger.info("Starting training pipeline for %s", MODEL_ID)
+    logger.info("Starting training pipeline for %s", model_id)
 
     # 1. Validate Dataset Exists
-    if not os.path.exists(DATA_FILE):
+    if not os.path.exists(data_file):
         raise FileNotFoundError(
-            f"Dataset not found at {DATA_FILE}. "
+            f"Dataset not found at {data_file}. "
             f"Please run 1_graph_api_harvester.py first to generate training data."
         )
 
     # 2. Load and Split Dataset
     # We use a simulated split strategy here. In production, split by 'tool_family'.
-    logger.info("Loading dataset from %s...", DATA_FILE)
-    dataset = load_dataset("json", data_files=DATA_FILE, split="train")
+    logger.info("Loading dataset from %s...", data_file)
+    dataset = load_dataset("json", data_files=data_file, split="train")
 
     if len(dataset) == 0:
         raise ValueError(
-            f"Dataset is empty! Check {DATA_FILE} and regenerate if necessary."
+            f"Dataset is empty! Check {data_file} and regenerate if necessary."
         )
 
     logger.info("Loaded %d training examples", len(dataset))
@@ -104,7 +124,7 @@ def train() -> None:
     try:
         logger.info("Attempting to load model with Flash Attention 2...")
         model = AutoModelForCausalLM.from_pretrained(
-            MODEL_ID,
+            model_id,
             quantization_config=bnb_config,
             device_map="auto",
             attn_implementation="flash_attention_2"
@@ -113,25 +133,25 @@ def train() -> None:
     except Exception as e:
         logger.warning("Flash Attention 2 not available, falling back to SDPA: %s", e)
         model = AutoModelForCausalLM.from_pretrained(
-            MODEL_ID,
+            model_id,
             quantization_config=bnb_config,
             device_map="auto",
             attn_implementation="sdpa"
         )
         logger.info("Successfully loaded with SDPA attention")
-    
+
     # Enable gradient checkpointing to save VRAM
     model = prepare_model_for_kbit_training(model)
 
     # 5. Load Tokenizer
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_ID, trust_remote_code=True)
+    tokenizer = AutoTokenizer.from_pretrained(model_id, trust_remote_code=True)
     tokenizer.pad_token = tokenizer.eos_token
     tokenizer.padding_side = "right" # SFTTrainer requires right padding for completion
 
     # 6. LoRA Configuration
     peft_config = LoraConfig(
-        r=32,                    # Rank: Higher r = more parameters to train (better for complex schemas)
-        lora_alpha=64,           # Alpha: Scaling factor (usually 2x rank)
+        r=lora_rank,             # Rank: Higher r = more parameters to train (better for complex schemas)
+        lora_alpha=lora_rank * 2,  # Alpha: Scaling factor (usually 2x rank)
         lora_dropout=0.05,
         bias="none",
         task_type="CAUSAL_LM",
@@ -140,11 +160,11 @@ def train() -> None:
 
     # 7. Training Configuration (SFTConfig for TRL >= 0.15.0)
     sft_config = SFTConfig(
-        output_dir=OUTPUT_DIR,
-        num_train_epochs=3,
-        per_device_train_batch_size=4,   # Adjust based on VRAM
-        gradient_accumulation_steps=4,   # Effective batch size = 4*4 = 16
-        learning_rate=1e-4,
+        output_dir=output_dir,
+        num_train_epochs=epochs,
+        per_device_train_batch_size=batch_size,   # Adjust based on VRAM
+        gradient_accumulation_steps=4,   # Effective batch size = batch_size * 4
+        learning_rate=learning_rate,
         weight_decay=0.01,
         fp16=False,
         bf16=True,                       # Use BFloat16 for stability
@@ -176,10 +196,87 @@ def train() -> None:
 
     trainer.train()
 
-    logger.info("Training complete! Saving model to %s...", NEW_MODEL_NAME)
-    trainer.model.save_pretrained(NEW_MODEL_NAME)
-    tokenizer.save_pretrained(NEW_MODEL_NAME)
-    logger.info("Model saved successfully to %s", NEW_MODEL_NAME)
+    logger.info("Training complete! Saving model to %s...", output_name)
+    trainer.model.save_pretrained(output_name)
+    tokenizer.save_pretrained(output_name)
+    logger.info("Model saved successfully to %s", output_name)
+
+def main():
+    """Main entry point with CLI argument parsing."""
+    parser = argparse.ArgumentParser(
+        description="Fine-tune Qwen 2.5 7B for Microsoft Graph tool calling using QLoRA"
+    )
+    parser.add_argument(
+        "--model-id",
+        type=str,
+        default=DEFAULT_MODEL_ID,
+        help=f"Base model identifier (default: {DEFAULT_MODEL_ID})"
+    )
+    parser.add_argument(
+        "--output-name",
+        type=str,
+        default=DEFAULT_MODEL_NAME,
+        help=f"Output adapter directory name (default: {DEFAULT_MODEL_NAME})"
+    )
+    parser.add_argument(
+        "--data-file",
+        type=str,
+        default=DEFAULT_DATA_FILE,
+        help=f"Path to training dataset JSONL file (default: {DEFAULT_DATA_FILE})"
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        default=DEFAULT_OUTPUT_DIR,
+        help=f"Directory for training checkpoints (default: {DEFAULT_OUTPUT_DIR})"
+    )
+    parser.add_argument(
+        "--epochs",
+        type=int,
+        default=3,
+        help="Number of training epochs (default: 3)"
+    )
+    parser.add_argument(
+        "--batch-size",
+        type=int,
+        default=4,
+        help="Per-device training batch size (default: 4)"
+    )
+    parser.add_argument(
+        "--learning-rate",
+        type=float,
+        default=1e-4,
+        help="Learning rate for optimizer (default: 1e-4)"
+    )
+    parser.add_argument(
+        "--lora-rank",
+        type=int,
+        default=32,
+        help="LoRA adapter rank (default: 32)"
+    )
+
+    args = parser.parse_args()
+
+    logger.info("Configuration:")
+    logger.info("  Base model: %s", args.model_id)
+    logger.info("  Output name: %s", args.output_name)
+    logger.info("  Data file: %s", args.data_file)
+    logger.info("  Output directory: %s", args.output_dir)
+    logger.info("  Epochs: %d", args.epochs)
+    logger.info("  Batch size: %d", args.batch_size)
+    logger.info("  Learning rate: %.2e", args.learning_rate)
+    logger.info("  LoRA rank: %d", args.lora_rank)
+
+    train(
+        model_id=args.model_id,
+        output_name=args.output_name,
+        data_file=args.data_file,
+        output_dir=args.output_dir,
+        epochs=args.epochs,
+        batch_size=args.batch_size,
+        learning_rate=args.learning_rate,
+        lora_rank=args.lora_rank
+    )
 
 if __name__ == "__main__":
-    train()
+    main()
