@@ -1,6 +1,6 @@
 {
   "name": "msgraph-tool-agent-8b",
-  "image": "nvcr.io/nvidia/pytorch:24.12-py3",
+  "image": "nvcr.io/nvidia/pytorch:24.08-py3",
   "runArgs": [
     "--gpus", "all",
     "--shm-size=16g"
@@ -20,6 +20,6 @@
       ]
     }
   },
-  "postCreateCommand": "rm -rf /usr/local/lib/python3.12/dist-packages/*.egg && pip install 'transformers>=4.40.0,<4.46.0' && pip install -e '.[dev]'",
+  "postCreateCommand": "pip install -e '.[dev]'",
   "remoteUser": "root"
 }
