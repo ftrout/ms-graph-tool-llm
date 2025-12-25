@@ -215,7 +215,7 @@ def create_model_card(
 def upload_to_hub(
     adapter_path: str,
     repo_id: str,
-    base_model: str = "Qwen/Qwen2.5-7B-Instruct",
+    base_model: str = "NousResearch/Hermes-3-Llama-3.1-8B",
     private: bool = False,
     commit_message: str = "Upload MSGraph Tool LLM adapter",
     create_model_card_file: bool = True
@@ -307,7 +307,7 @@ def main():
     parser.add_argument(
         "--base-model",
         type=str,
-        default="Qwen/Qwen2.5-7B-Instruct",
+        default="NousResearch/Hermes-3-Llama-3.1-8B",
         help="Base model identifier for model card"
     )
     parser.add_argument(

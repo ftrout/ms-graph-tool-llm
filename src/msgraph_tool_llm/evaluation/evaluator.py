@@ -125,7 +125,7 @@ class GraphToolEvaluator:
 
     def __init__(
         self,
-        base_model_id: str = "Qwen/Qwen2.5-7B-Instruct",
+        base_model_id: str = "NousResearch/Hermes-3-Llama-3.1-8B",
         adapter_path: Optional[str] = None,
         device: Optional[str] = None
     ):
@@ -471,13 +471,13 @@ def main():
     parser.add_argument(
         "--base-model",
         type=str,
-        default="Qwen/Qwen2.5-7B-Instruct",
+        default="NousResearch/Hermes-3-Llama-3.1-8B",
         help="Base model identifier"
     )
     parser.add_argument(
         "--adapter-path",
         type=str,
-        default="msgraph-tool-agent-7b",
+        default="msgraph-tool-agent-8b",
         help="Path to trained LoRA adapter"
     )
     parser.add_argument(

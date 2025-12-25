@@ -324,13 +324,13 @@ def main():
     parser.add_argument(
         "--model-id",
         type=str,
-        default="Qwen/Qwen2.5-7B-Instruct",
+        default="NousResearch/Hermes-3-Llama-3.1-8B",
         help="Base model identifier"
     )
     parser.add_argument(
         "--output-name",
         type=str,
-        default="msgraph-tool-agent-7b",
+        default="msgraph-tool-agent-8b",
         help="Output adapter directory name"
     )
     parser.add_argument(
