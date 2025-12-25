@@ -22,6 +22,27 @@ msgraph-tool-agent-8b is a specialized fine-tuning pipeline that trains language
 
 ### Installation
 
+**Option 1: Dev Container (Recommended)**
+
+The easiest way to get started is using the included Dev Container with VS Code:
+
+1. Install [Docker](https://www.docker.com/products/docker-desktop) and [VS Code](https://code.visualstudio.com/)
+2. Install the [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+3. Clone and open the repository:
+   ```bash
+   git clone https://github.com/ftrout/msgraph-tool-agent-8b
+   code msgraph-tool-agent-8b
+   ```
+4. Click "Reopen in Container" when prompted (or run `Dev Containers: Reopen in Container` from the command palette)
+
+The container includes:
+- NVIDIA PyTorch base image with CUDA support
+- All dependencies pre-installed
+- GPU passthrough configured
+- 16GB shared memory for training
+
+**Option 2: Local Installation**
+
 ```bash
 # Clone the repository
 git clone https://github.com/ftrout/msgraph-tool-agent-8b
@@ -181,6 +202,8 @@ upload_to_hub(
 
 ```
 msgraph-tool-agent-8b/
+├── .devcontainer/
+│   └── devcontainer.json        # VS Code Dev Container config
 ├── src/
 │   └── msgraph_tool_agent_8b/
 │       ├── __init__.py           # Package exports
@@ -249,9 +272,40 @@ config = TrainingConfig(
     per_device_train_batch_size=4,
     gradient_accumulation_steps=4,
     learning_rate=1e-4,
-    bf16=True
+    bf16=True,
+    # Early stopping
+    early_stopping=True,
+    early_stopping_patience=3,
+    # Best model selection
+    load_best_model_at_end=True,
+    # Experiment tracking
+    report_to="wandb",  # or "tensorboard", "all", "none"
+    run_name="my-training-run",
 )
 ```
+
+### CLI Training Options
+
+```bash
+msgraph-train \
+    --data-file ./data/graph_tool_dataset.jsonl \
+    --output-name msgraph-tool-agent-8b \
+    --epochs 3 \
+    --batch-size 4 \
+    --learning-rate 1e-4 \
+    --lora-rank 32 \
+    --early-stopping-patience 3 \
+    --report-to wandb \
+    --run-name "production-run-1"
+```
+
+| Option | Description |
+|--------|-------------|
+| `--no-early-stopping` | Disable early stopping |
+| `--early-stopping-patience N` | Stop after N evals without improvement |
+| `--report-to {none,wandb,tensorboard,all}` | Experiment tracking |
+| `--run-name NAME` | Name for the training run |
+| `--push-to-hub` | Push directly to Hugging Face Hub |
 
 ## Evaluation Metrics
 
