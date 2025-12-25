@@ -303,7 +303,7 @@ class GraphToolTrainer:
         # Create trainer
         trainer = SFTTrainer(
             model=self.model,
-            tokenizer=self.tokenizer,
+            processing_class=self.tokenizer,
             train_dataset=dataset["train"],
             eval_dataset=dataset["test"],
             peft_config=peft_config,
