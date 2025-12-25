@@ -135,7 +135,8 @@ class GraphToolTrainer:
         """Load and configure the tokenizer."""
         tokenizer = AutoTokenizer.from_pretrained(
             self.model_config.base_model_id,
-            trust_remote_code=True
+            trust_remote_code=True,
+            model_max_length=self.model_config.max_seq_length,
         )
         tokenizer.pad_token = tokenizer.eos_token
         tokenizer.padding_side = "right"
@@ -310,7 +311,6 @@ class GraphToolTrainer:
             formatting_func=self._format_chat_template,
             args=sft_config,
             callbacks=callbacks if callbacks else None,
-            max_seq_length=self.model_config.max_seq_length,
         )
 
         # Log training config
