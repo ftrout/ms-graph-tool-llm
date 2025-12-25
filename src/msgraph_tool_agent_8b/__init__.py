@@ -21,15 +21,19 @@ def __getattr__(name: str):
     """Lazy import for optional dependencies."""
     if name == "MSGraphAgent":
         from msgraph_tool_agent_8b.inference.agent import MSGraphAgent
+
         return MSGraphAgent
     elif name == "GraphAPIHarvester":
         from msgraph_tool_agent_8b.data.harvester import GraphAPIHarvester
+
         return GraphAPIHarvester
     elif name == "GraphToolTrainer":
         from msgraph_tool_agent_8b.training.trainer import GraphToolTrainer
+
         return GraphToolTrainer
     elif name == "GraphToolEvaluator":
         from msgraph_tool_agent_8b.evaluation.evaluator import GraphToolEvaluator
+
         return GraphToolEvaluator
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 

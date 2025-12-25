@@ -29,7 +29,7 @@ class TestEvaluationMetrics:
             valid_json_count=90,
             correct_tool_name_count=85,
             correct_arguments_count=80,
-            total_inference_time=10.0
+            total_inference_time=10.0,
         )
 
         metrics.compute_rates()
@@ -49,10 +49,7 @@ class TestEvaluationMetrics:
 
     def test_to_dict(self):
         """Test conversion to dictionary."""
-        metrics = EvaluationMetrics(
-            total_samples=100,
-            valid_json_count=90
-        )
+        metrics = EvaluationMetrics(total_samples=100, valid_json_count=90)
         metrics.compute_rates()
 
         result = metrics.to_dict()
@@ -64,10 +61,7 @@ class TestEvaluationMetrics:
 
     def test_str_representation(self):
         """Test string representation."""
-        metrics = EvaluationMetrics(
-            total_samples=100,
-            valid_json_count=90
-        )
+        metrics = EvaluationMetrics(total_samples=100, valid_json_count=90)
 
         result = str(metrics)
 
@@ -89,8 +83,7 @@ class TestGraphToolEvaluator:
     def test_init_custom_values(self):
         """Test initialization with custom values."""
         evaluator = GraphToolEvaluator(
-            base_model_id="custom/model",
-            adapter_path="./custom-adapter"
+            base_model_id="custom/model", adapter_path="./custom-adapter"
         )
         assert evaluator.base_model_id == "custom/model"
         assert evaluator.adapter_path == "./custom-adapter"
@@ -121,11 +114,11 @@ class TestGraphToolEvaluator:
         """Test tool call comparison with matching calls."""
         generated = {
             "name": "users_ListUsers",
-            "arguments": {"$filter": "test", "$select": "id"}
+            "arguments": {"$filter": "test", "$select": "id"},
         }
         expected = {
             "name": "users_ListUsers",
-            "arguments": {"$filter": "test", "$select": "id"}
+            "arguments": {"$filter": "test", "$select": "id"},
         }
 
         name_match, args_match = GraphToolEvaluator.compare_tool_calls(
@@ -151,7 +144,7 @@ class TestGraphToolEvaluator:
         generated = {"name": "users_ListUsers", "arguments": {"$filter": "test"}}
         expected = {
             "name": "users_ListUsers",
-            "arguments": {"$filter": "test", "$select": "id"}
+            "arguments": {"$filter": "test", "$select": "id"},
         }
 
         name_match, args_match = GraphToolEvaluator.compare_tool_calls(
@@ -165,12 +158,9 @@ class TestGraphToolEvaluator:
         """Test tool call comparison with type mismatch."""
         generated = {
             "name": "users_ListUsers",
-            "arguments": {"items": "string"}  # Should be array
+            "arguments": {"items": "string"},  # Should be array
         }
-        expected = {
-            "name": "users_ListUsers",
-            "arguments": {"items": ["a", "b"]}
-        }
+        expected = {"name": "users_ListUsers", "arguments": {"items": ["a", "b"]}}
 
         name_match, args_match = GraphToolEvaluator.compare_tool_calls(
             generated, expected
@@ -183,18 +173,21 @@ class TestGraphToolEvaluator:
 class TestJSONValidation:
     """Additional tests for JSON validation edge cases."""
 
-    @pytest.mark.parametrize("json_str,expected_valid", [
-        ('{"name": "test"}', True),
-        ('{"name": "test", "nested": {"key": "value"}}', True),
-        ('{"array": [1, 2, 3]}', True),
-        ('null', True),
-        ('true', True),
-        ('123', True),
-        ('"string"', True),
-        ('{"incomplete": ', False),
-        ('not json at all', False),
-        ('{"trailing": "comma",}', False),
-    ])
+    @pytest.mark.parametrize(
+        "json_str,expected_valid",
+        [
+            ('{"name": "test"}', True),
+            ('{"name": "test", "nested": {"key": "value"}}', True),
+            ('{"array": [1, 2, 3]}', True),
+            ("null", True),
+            ("true", True),
+            ("123", True),
+            ('"string"', True),
+            ('{"incomplete": ', False),
+            ("not json at all", False),
+            ('{"trailing": "comma",}', False),
+        ],
+    )
     def test_various_json_inputs(self, json_str, expected_valid):
         """Test JSON validation with various inputs."""
         is_valid, _ = GraphToolEvaluator.validate_json(json_str)

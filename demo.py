@@ -53,19 +53,17 @@ demo = gr.Interface(
         gr.Textbox(
             label="Instruction",
             placeholder="Enter a natural language request...",
-            lines=2
+            lines=2,
         ),
         gr.Dropdown(
-            choices=list(COMMON_TOOLS.keys()),
-            value="send_mail",
-            label="Tool Type"
-        )
+            choices=list(COMMON_TOOLS.keys()), value="send_mail", label="Tool Type"
+        ),
     ],
     outputs=gr.Code(label="Generated Tool Call", language="json"),
     title="MSGraph Tool Agent Demo",
     description="Convert natural language requests into Microsoft Graph API tool calls.",
     examples=EXAMPLES,
-    theme=gr.themes.Soft()
+    theme=gr.themes.Soft(),
 )
 
 if __name__ == "__main__":

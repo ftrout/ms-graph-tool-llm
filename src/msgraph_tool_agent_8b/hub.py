@@ -15,7 +15,7 @@ from msgraph_tool_agent_8b.utils.logging import get_logger
 logger = get_logger("hub")
 
 # Model card template with placeholders for evaluation metrics
-MODEL_CARD_TEMPLATE = '''---
+MODEL_CARD_TEMPLATE = """---
 language:
 - en
 license: mit
@@ -223,10 +223,10 @@ The training set includes:
 ## License
 
 MIT License
-'''
+"""
 
 # Dataset card template
-DATASET_CARD_TEMPLATE = '''---
+DATASET_CARD_TEMPLATE = """---
 language:
 - en
 license: mit
@@ -357,7 +357,7 @@ msgraph-train --data-file ./data/graph_tool_dataset.jsonl
 ## License
 
 MIT License
-'''
+"""
 
 
 def create_model_card(
@@ -376,7 +376,7 @@ def create_model_card(
     batch_size: int = 16,
     max_seq_length: int = 2048,
     hardware: str = "NVIDIA GPU (16GB+ VRAM)",
-    training_time: str = "~1-3 hours"
+    training_time: str = "~1-3 hours",
 ) -> str:
     """
     Create a model card for Hugging Face Hub.
@@ -417,7 +417,7 @@ def create_model_card(
         batch_size=batch_size,
         max_seq_length=max_seq_length,
         hardware=hardware,
-        training_time=training_time
+        training_time=training_time,
     )
 
     card_path = os.path.join(output_path, "README.md")
@@ -434,7 +434,7 @@ def upload_to_hub(
     base_model: str = "NousResearch/Hermes-3-Llama-3.1-8B",
     private: bool = False,
     commit_message: str = "Upload msgraph-tool-agent-8b adapter",
-    create_model_card_file: bool = True
+    create_model_card_file: bool = True,
 ) -> str:
     """
     Upload a trained adapter to the Hugging Face Hub.
@@ -459,8 +459,7 @@ def upload_to_hub(
 
     if "/" not in repo_id:
         raise ValueError(
-            f"Invalid repo_id '{repo_id}'. "
-            "Format should be 'username/model-name'"
+            f"Invalid repo_id '{repo_id}'. " "Format should be 'username/model-name'"
         )
 
     logger.info("Uploading to Hugging Face Hub: %s", repo_id)
@@ -470,12 +469,7 @@ def upload_to_hub(
 
     # Create repository if it doesn't exist
     try:
-        create_repo(
-            repo_id=repo_id,
-            repo_type="model",
-            private=private,
-            exist_ok=True
-        )
+        create_repo(repo_id=repo_id, repo_type="model", private=private, exist_ok=True)
         logger.info("Repository created/verified: %s", repo_id)
     except Exception as e:
         logger.warning("Could not create repository: %s", e)
@@ -487,7 +481,7 @@ def upload_to_hub(
             model_name=model_name,
             base_model=base_model,
             repo_id=repo_id,
-            output_path=adapter_path
+            output_path=adapter_path,
         )
 
     # Upload folder
@@ -504,10 +498,7 @@ def upload_to_hub(
 
 
 def create_dataset_card(
-    dataset_name: str,
-    repo_id: str,
-    num_samples: int,
-    output_path: str
+    dataset_name: str, repo_id: str, num_samples: int, output_path: str
 ) -> str:
     """
     Create a dataset card for Hugging Face Hub.
@@ -522,9 +513,7 @@ def create_dataset_card(
         Path to the created dataset card
     """
     card_content = DATASET_CARD_TEMPLATE.format(
-        dataset_name=dataset_name,
-        repo_id=repo_id,
-        num_samples=num_samples
+        dataset_name=dataset_name, repo_id=repo_id, num_samples=num_samples
     )
 
     card_path = os.path.join(output_path, "README.md")
@@ -540,7 +529,7 @@ def upload_dataset_to_hub(
     repo_id: str,
     private: bool = False,
     commit_message: str = "Upload msgraph-tool-agent-8b training dataset",
-    create_dataset_card_file: bool = True
+    create_dataset_card_file: bool = True,
 ) -> str:
     """
     Upload a dataset to the Hugging Face Hub.
@@ -564,8 +553,7 @@ def upload_dataset_to_hub(
 
     if "/" not in repo_id:
         raise ValueError(
-            f"Invalid repo_id '{repo_id}'. "
-            "Format should be 'username/dataset-name'"
+            f"Invalid repo_id '{repo_id}'. " "Format should be 'username/dataset-name'"
         )
 
     logger.info("Uploading dataset to Hugging Face Hub: %s", repo_id)
@@ -576,10 +564,7 @@ def upload_dataset_to_hub(
     # Create repository if it doesn't exist
     try:
         create_repo(
-            repo_id=repo_id,
-            repo_type="dataset",
-            private=private,
-            exist_ok=True
+            repo_id=repo_id, repo_type="dataset", private=private, exist_ok=True
         )
         logger.info("Dataset repository created/verified: %s", repo_id)
     except Exception as e:
@@ -598,13 +583,14 @@ def upload_dataset_to_hub(
         # Create dataset card in a temp directory
         if create_dataset_card_file:
             import tempfile
+
             temp_dir = tempfile.mkdtemp()
             dataset_name = repo_id.split("/")[-1]
             create_dataset_card(
                 dataset_name=dataset_name,
                 repo_id=repo_id,
                 num_samples=num_samples,
-                output_path=temp_dir
+                output_path=temp_dir,
             )
 
             # Upload README
@@ -642,7 +628,7 @@ def upload_dataset_to_hub(
                 dataset_name=dataset_name,
                 repo_id=repo_id,
                 num_samples=num_samples,
-                output_path=dataset_path
+                output_path=dataset_path,
             )
 
         # Upload folder
@@ -666,41 +652,36 @@ def main():
         description="Upload trained msgraph-tool-agent-8b to Hugging Face Hub"
     )
     parser.add_argument(
-        "adapter_path",
-        type=str,
-        help="Path to the trained adapter directory"
+        "adapter_path", type=str, help="Path to the trained adapter directory"
     )
     parser.add_argument(
         "repo_id",
         type=str,
-        help="Hugging Face repository ID (e.g., 'username/model-name')"
+        help="Hugging Face repository ID (e.g., 'username/model-name')",
     )
     parser.add_argument(
         "--base-model",
         type=str,
         default="NousResearch/Hermes-3-Llama-3.1-8B",
-        help="Base model identifier for model card"
+        help="Base model identifier for model card",
     )
     parser.add_argument(
-        "--private",
-        action="store_true",
-        help="Create a private repository"
+        "--private", action="store_true", help="Create a private repository"
     )
     parser.add_argument(
         "--commit-message",
         type=str,
         default="Upload msgraph-tool-agent-8b adapter",
-        help="Commit message for the upload"
+        help="Commit message for the upload",
     )
     parser.add_argument(
-        "--no-model-card",
-        action="store_true",
-        help="Skip creating model card"
+        "--no-model-card", action="store_true", help="Skip creating model card"
     )
 
     args = parser.parse_args()
 
     from msgraph_tool_agent_8b.utils.logging import setup_logging
+
     setup_logging()
 
     try:
@@ -710,7 +691,7 @@ def main():
             base_model=args.base_model,
             private=args.private,
             commit_message=args.commit_message,
-            create_model_card_file=not args.no_model_card
+            create_model_card_file=not args.no_model_card,
         )
         print(f"\nModel uploaded successfully!")
         print(f"View at: https://huggingface.co/{args.repo_id}")
@@ -727,35 +708,30 @@ def dataset_main():
         description="Upload msgraph-tool-agent-8b dataset to Hugging Face Hub"
     )
     parser.add_argument(
-        "dataset_path",
-        type=str,
-        help="Path to the dataset file (JSONL) or directory"
+        "dataset_path", type=str, help="Path to the dataset file (JSONL) or directory"
     )
     parser.add_argument(
         "repo_id",
         type=str,
-        help="Hugging Face repository ID (e.g., 'username/dataset-name')"
+        help="Hugging Face repository ID (e.g., 'username/dataset-name')",
     )
     parser.add_argument(
-        "--private",
-        action="store_true",
-        help="Create a private repository"
+        "--private", action="store_true", help="Create a private repository"
     )
     parser.add_argument(
         "--commit-message",
         type=str,
         default="Upload msgraph-tool-agent-8b training dataset",
-        help="Commit message for the upload"
+        help="Commit message for the upload",
     )
     parser.add_argument(
-        "--no-dataset-card",
-        action="store_true",
-        help="Skip creating dataset card"
+        "--no-dataset-card", action="store_true", help="Skip creating dataset card"
     )
 
     args = parser.parse_args()
 
     from msgraph_tool_agent_8b.utils.logging import setup_logging
+
     setup_logging()
 
     try:
@@ -764,7 +740,7 @@ def dataset_main():
             repo_id=args.repo_id,
             private=args.private,
             commit_message=args.commit_message,
-            create_dataset_card_file=not args.no_dataset_card
+            create_dataset_card_file=not args.no_dataset_card,
         )
         print(f"\nDataset uploaded successfully!")
         print(f"View at: https://huggingface.co/datasets/{args.repo_id}")

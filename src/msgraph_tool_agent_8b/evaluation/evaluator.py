@@ -56,9 +56,7 @@ class EvaluationMetrics:
             self.tool_name_accuracy = self.correct_tool_name_count / self.total_samples
             self.argument_accuracy = self.correct_arguments_count / self.total_samples
             # Overall = valid JSON + correct name + correct args
-            self.overall_accuracy = (
-                self.correct_arguments_count / self.total_samples
-            )
+            self.overall_accuracy = self.correct_arguments_count / self.total_samples
             if self.total_inference_time > 0:
                 self.avg_inference_time = self.total_inference_time / self.total_samples
 
@@ -125,7 +123,7 @@ class GraphToolEvaluator:
         self,
         base_model_id: str = "NousResearch/Hermes-3-Llama-3.1-8B",
         adapter_path: Optional[str] = None,
-        device: Optional[str] = None
+        device: Optional[str] = None,
     ):
         """
         Initialize the evaluator.
@@ -142,6 +140,7 @@ class GraphToolEvaluator:
         else:
             try:
                 import torch
+
                 self.device = "cuda" if torch.cuda.is_available() else "cpu"
             except ImportError:
                 self.device = "cpu"
@@ -149,7 +148,8 @@ class GraphToolEvaluator:
         self.tokenizer = None
         logger.info(
             "Initialized evaluator with base model: %s, adapter: %s",
-            base_model_id, adapter_path
+            base_model_id,
+            adapter_path,
         )
 
     def load_model(self) -> None:
@@ -178,8 +178,7 @@ class GraphToolEvaluator:
 
         # Load tokenizer
         self.tokenizer = AutoTokenizer.from_pretrained(
-            self.base_model_id,
-            trust_remote_code=True
+            self.base_model_id, trust_remote_code=True
         )
 
         self.model.eval()
@@ -190,7 +189,7 @@ class GraphToolEvaluator:
         instruction: str,
         tool_definition: str,
         max_new_tokens: int = 256,
-        temperature: float = 0.1
+        temperature: float = 0.1,
     ) -> Tuple[str, float, int]:
         """
         Generate a tool call for the given instruction.
@@ -210,8 +209,8 @@ class GraphToolEvaluator:
             {"role": "system", "content": SYSTEM_PROMPT},
             {
                 "role": "user",
-                "content": f"User Request: {instruction}\nAvailable Tool: {tool_definition}"
-            }
+                "content": f"User Request: {instruction}\nAvailable Tool: {tool_definition}",
+            },
         ]
 
         prompt = self.tokenizer.apply_chat_template(
@@ -231,7 +230,7 @@ class GraphToolEvaluator:
         inference_time = time.time() - start_time
 
         # Decode only new tokens
-        new_tokens = outputs[0][inputs.input_ids.shape[1]:]
+        new_tokens = outputs[0][inputs.input_ids.shape[1] :]
         num_tokens = len(new_tokens)
         response = self.tokenizer.decode(new_tokens, skip_special_tokens=True)
 
@@ -256,8 +255,7 @@ class GraphToolEvaluator:
 
     @staticmethod
     def compare_tool_calls(
-        generated: Dict[str, Any],
-        expected: Dict[str, Any]
+        generated: Dict[str, Any], expected: Dict[str, Any]
     ) -> Tuple[bool, bool]:
         """
         Compare generated tool call with expected.
@@ -294,10 +292,7 @@ class GraphToolEvaluator:
         return name_matches, args_match
 
     def evaluate_sample(
-        self,
-        instruction: str,
-        tool_definition: str,
-        expected_output: str
+        self, instruction: str, tool_definition: str, expected_output: str
     ) -> Dict[str, Any]:
         """
         Evaluate a single sample.
@@ -354,7 +349,7 @@ class GraphToolEvaluator:
         self,
         data_file: str,
         max_samples: Optional[int] = None,
-        save_results: Optional[str] = None
+        save_results: Optional[str] = None,
     ) -> EvaluationMetrics:
         """
         Evaluate the model on a dataset.
@@ -394,7 +389,7 @@ class GraphToolEvaluator:
             result = self.evaluate_sample(
                 instruction=sample["instruction"],
                 tool_definition=sample["input"],
-                expected_output=sample["output"]
+                expected_output=sample["output"],
             )
             results.append(result)
 
@@ -406,11 +401,13 @@ class GraphToolEvaluator:
             if result["arguments_correct"]:
                 metrics.correct_arguments_count += 1
             if result["error"]:
-                metrics.errors.append({
-                    "index": i,
-                    "instruction": sample["instruction"],
-                    "error": result["error"]
-                })
+                metrics.errors.append(
+                    {
+                        "index": i,
+                        "instruction": sample["instruction"],
+                        "error": result["error"],
+                    }
+                )
 
             metrics.total_inference_time += result["inference_time"]
             total_tokens += result["num_tokens"]
@@ -423,10 +420,9 @@ class GraphToolEvaluator:
         # Save detailed results
         if save_results:
             with open(save_results, "w") as f:
-                json.dump({
-                    "metrics": metrics.to_dict(),
-                    "results": results
-                }, f, indent=2)
+                json.dump(
+                    {"metrics": metrics.to_dict(), "results": results}, f, indent=2
+                )
             logger.info("Detailed results saved to %s", save_results)
 
         logger.info(str(metrics))
@@ -469,10 +465,10 @@ DEFAULT_TEST_TOOL = {
             "type": "object",
             "properties": {
                 "$filter": {"type": "string", "description": "Filter items"},
-                "$select": {"type": "string", "description": "Select properties"}
-            }
-        }
-    }
+                "$select": {"type": "string", "description": "Select properties"},
+            },
+        },
+    },
 }
 
 
@@ -480,54 +476,43 @@ def main():
     """CLI entry point for evaluation."""
     import argparse
 
-    parser = argparse.ArgumentParser(
-        description="Evaluate msgraph-tool-agent-8b model"
-    )
+    parser = argparse.ArgumentParser(description="Evaluate msgraph-tool-agent-8b model")
     parser.add_argument(
         "--base-model",
         type=str,
         default="NousResearch/Hermes-3-Llama-3.1-8B",
-        help="Base model identifier"
+        help="Base model identifier",
     )
     parser.add_argument(
         "--adapter-path",
         type=str,
         default="msgraph-tool-agent-8b",
-        help="Path to trained LoRA adapter"
+        help="Path to trained LoRA adapter",
     )
     parser.add_argument(
-        "--data-file",
-        type=str,
-        default=None,
-        help="Path to evaluation dataset (JSONL)"
+        "--data-file", type=str, default=None, help="Path to evaluation dataset (JSONL)"
     )
     parser.add_argument(
-        "--max-samples",
-        type=int,
-        default=None,
-        help="Maximum samples to evaluate"
+        "--max-samples", type=int, default=None, help="Maximum samples to evaluate"
     )
     parser.add_argument(
         "--query",
         type=str,
         default="Find the user with email 'admin@contoso.com' and select their id.",
-        help="Single query to evaluate"
+        help="Single query to evaluate",
     )
     parser.add_argument(
-        "--save-results",
-        type=str,
-        default=None,
-        help="Path to save detailed results"
+        "--save-results", type=str, default=None, help="Path to save detailed results"
     )
 
     args = parser.parse_args()
 
     from msgraph_tool_agent_8b.utils.logging import setup_logging
+
     setup_logging()
 
     evaluator = GraphToolEvaluator(
-        base_model_id=args.base_model,
-        adapter_path=args.adapter_path
+        base_model_id=args.base_model, adapter_path=args.adapter_path
     )
 
     if args.data_file:
@@ -535,7 +520,7 @@ def main():
         evaluator.evaluate_dataset(
             data_file=args.data_file,
             max_samples=args.max_samples,
-            save_results=args.save_results
+            save_results=args.save_results,
         )
     else:
         # Single query evaluation

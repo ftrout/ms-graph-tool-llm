@@ -10,6 +10,7 @@ def __getattr__(name: str):
             GraphToolEvaluator,
             EvaluationMetrics,
         )
+
         if name == "GraphToolEvaluator":
             return GraphToolEvaluator
         return EvaluationMetrics

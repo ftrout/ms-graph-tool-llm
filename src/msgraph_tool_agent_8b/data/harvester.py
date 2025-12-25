@@ -110,9 +110,7 @@ class GraphAPIHarvester:
         Returns:
             Tool definition in function-calling format.
         """
-        tool_name = operation.get(
-            "operationId", f"{method}_{path.replace('/', '_')}"
-        )
+        tool_name = operation.get("operationId", f"{method}_{path.replace('/', '_')}")
         description = self.clean_text(
             operation.get("summary", operation.get("description", ""))
         )
@@ -156,9 +154,7 @@ class GraphAPIHarvester:
             },
         }
 
-    def _generate_example_args(
-        self, params: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def _generate_example_args(self, params: Dict[str, Any]) -> Dict[str, Any]:
         """
         Generate example arguments based on parameter definitions.
 
@@ -219,9 +215,7 @@ class GraphAPIHarvester:
         response = requests.get(self.openapi_url, timeout=120)
 
         if response.status_code != 200:
-            raise Exception(
-                f"Failed to download spec: HTTP {response.status_code}"
-            )
+            raise Exception(f"Failed to download spec: HTTP {response.status_code}")
 
         return yaml.safe_load(response.content)
 
@@ -252,9 +246,7 @@ class GraphAPIHarvester:
                     continue
 
                 # Skip if no summary
-                summary = self.clean_text(
-                    operation.get("summary", "")
-                )
+                summary = self.clean_text(operation.get("summary", ""))
                 if not summary:
                     continue
 
@@ -274,11 +266,13 @@ class GraphAPIHarvester:
                         "arguments": example_args,
                     }
 
-                    samples.append({
-                        "instruction": instruction,
-                        "input": json.dumps(tool_def),
-                        "output": json.dumps(output),
-                    })
+                    samples.append(
+                        {
+                            "instruction": instruction,
+                            "input": json.dumps(tool_def),
+                            "output": json.dumps(output),
+                        }
+                    )
 
         logger.info(f"Generated {len(samples)} training samples")
         return samples
@@ -338,7 +332,8 @@ def main() -> None:
         help="URL to OpenAPI specification",
     )
     parser.add_argument(
-        "-v", "--verbose",
+        "-v",
+        "--verbose",
         action="store_true",
         help="Enable verbose logging",
     )
@@ -348,6 +343,7 @@ def main() -> None:
     # Configure logging
     import logging
     from msgraph_tool_agent_8b.utils.logging import setup_logging
+
     setup_logging(level=logging.DEBUG if args.verbose else logging.INFO)
 
     # Run harvester

@@ -30,10 +30,7 @@ class TestModelConfig:
     def test_custom_values(self):
         """Test initialization with custom values."""
         config = ModelConfig(
-            base_model_id="custom/model",
-            lora_r=64,
-            lora_alpha=128,
-            max_seq_length=4096
+            base_model_id="custom/model", lora_r=64, lora_alpha=128, max_seq_length=4096
         )
 
         assert config.base_model_id == "custom/model"
@@ -65,7 +62,7 @@ class TestModelConfig:
             "lora_dropout": 0.1,
             "lora_target_modules": ["q_proj", "v_proj"],
             "max_seq_length": 1024,
-            "attn_implementation": "sdpa"
+            "attn_implementation": "sdpa",
         }
 
         config = ModelConfig.from_dict(config_dict)
@@ -78,9 +75,7 @@ class TestModelConfig:
         """Test saving and loading configuration."""
         config = ModelConfig(lora_r=48, lora_alpha=96)
 
-        with tempfile.NamedTemporaryFile(
-            mode='w', suffix='.json', delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             config.save(f.name)
             loaded_config = ModelConfig.load(f.name)
 
@@ -94,8 +89,13 @@ class TestModelConfig:
         config = ModelConfig()
 
         expected_modules = [
-            "q_proj", "k_proj", "v_proj", "o_proj",
-            "gate_proj", "up_proj", "down_proj"
+            "q_proj",
+            "k_proj",
+            "v_proj",
+            "o_proj",
+            "gate_proj",
+            "up_proj",
+            "down_proj",
         ]
         assert config.lora_target_modules == expected_modules
 
@@ -116,9 +116,7 @@ class TestTrainingConfig:
     def test_custom_values(self):
         """Test initialization with custom values."""
         config = TrainingConfig(
-            num_train_epochs=5,
-            per_device_train_batch_size=8,
-            learning_rate=2e-4
+            num_train_epochs=5, per_device_train_batch_size=8, learning_rate=2e-4
         )
 
         assert config.num_train_epochs == 5
@@ -138,13 +136,11 @@ class TestTrainingConfig:
     def test_effective_batch_size(self):
         """Test that effective batch size can be computed."""
         config = TrainingConfig(
-            per_device_train_batch_size=4,
-            gradient_accumulation_steps=4
+            per_device_train_batch_size=4, gradient_accumulation_steps=4
         )
 
         effective_batch_size = (
-            config.per_device_train_batch_size *
-            config.gradient_accumulation_steps
+            config.per_device_train_batch_size * config.gradient_accumulation_steps
         )
         assert effective_batch_size == 16
 

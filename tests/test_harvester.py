@@ -58,9 +58,9 @@ class TestGraphAPIHarvester:
                     "name": "$filter",
                     "in": "query",
                     "schema": {"type": "string"},
-                    "description": "Filter results"
+                    "description": "Filter results",
                 }
-            ]
+            ],
         }
 
         tool = harvester._format_tool("/users", "get", operation)
@@ -82,9 +82,9 @@ class TestGraphAPIHarvester:
                     "in": "path",
                     "required": True,
                     "schema": {"type": "string"},
-                    "description": "User ID"
+                    "description": "User ID",
                 }
-            ]
+            ],
         }
 
         tool = harvester._format_tool("/users/{user-id}", "get", operation)
@@ -96,9 +96,7 @@ class TestGraphAPIHarvester:
         """Test example argument generation for string types."""
         harvester = GraphAPIHarvester()
         params = {
-            "properties": {
-                "name": {"type": "string", "description": "User name"}
-            }
+            "properties": {"name": {"type": "string", "description": "User name"}}
         }
 
         args = harvester._generate_example_args(params)
@@ -107,11 +105,7 @@ class TestGraphAPIHarvester:
     def test_generate_example_args_integer(self):
         """Test example argument generation for integer types."""
         harvester = GraphAPIHarvester()
-        params = {
-            "properties": {
-                "count": {"type": "integer", "description": "Count"}
-            }
-        }
+        params = {"properties": {"count": {"type": "integer", "description": "Count"}}}
 
         args = harvester._generate_example_args(params)
         assert args["count"] == 10
@@ -120,9 +114,7 @@ class TestGraphAPIHarvester:
         """Test example argument generation for boolean types."""
         harvester = GraphAPIHarvester()
         params = {
-            "properties": {
-                "enabled": {"type": "boolean", "description": "Is enabled"}
-            }
+            "properties": {"enabled": {"type": "boolean", "description": "Is enabled"}}
         }
 
         args = harvester._generate_example_args(params)
@@ -132,9 +124,7 @@ class TestGraphAPIHarvester:
         """Test example argument generation for OData $filter."""
         harvester = GraphAPIHarvester()
         params = {
-            "properties": {
-                "$filter": {"type": "string", "description": "Filter"}
-            }
+            "properties": {"$filter": {"type": "string", "description": "Filter"}}
         }
 
         args = harvester._generate_example_args(params)
@@ -144,9 +134,7 @@ class TestGraphAPIHarvester:
         """Test example argument generation for OData $select."""
         harvester = GraphAPIHarvester()
         params = {
-            "properties": {
-                "$select": {"type": "string", "description": "Select"}
-            }
+            "properties": {"$select": {"type": "string", "description": "Select"}}
         }
 
         args = harvester._generate_example_args(params)
@@ -162,7 +150,7 @@ class TestGraphAPIHarvester:
                     "get": {
                         "operationId": "users_ListUsers",
                         "summary": "List all users",
-                        "parameters": []
+                        "parameters": [],
                     }
                 }
             }
@@ -186,8 +174,8 @@ class TestGraphAPIHarvester:
                     "get": {
                         "operationId": "users_ListUsers",
                         "summary": "List users",
-                        "parameters": []
-                    }
+                        "parameters": [],
+                    },
                 }
             }
         }
@@ -204,7 +192,7 @@ class TestGraphAPIHarvester:
                 "/users": {
                     "get": {
                         "operationId": "users_ListUsers",
-                        "parameters": []
+                        "parameters": [],
                         # No summary
                     }
                 }
@@ -225,17 +213,16 @@ class TestGraphAPIHarvester:
                     "get": {
                         "operationId": "users_ListUsers",
                         "summary": "List all users",
-                        "parameters": []
+                        "parameters": [],
                     }
                 }
             }
         }
 
         with tempfile.TemporaryDirectory() as tmpdir:
-            with patch.object(harvester, 'download_spec', return_value=mock_spec):
+            with patch.object(harvester, "download_spec", return_value=mock_spec):
                 output_path = harvester.harvest(
-                    output_dir=tmpdir,
-                    output_filename="test_dataset.jsonl"
+                    output_dir=tmpdir, output_filename="test_dataset.jsonl"
                 )
 
                 assert os.path.exists(output_path)
