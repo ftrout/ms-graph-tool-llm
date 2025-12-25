@@ -7,7 +7,7 @@ for Microsoft Graph API tool calling.
 
 import json
 import os
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import torch
 from peft import PeftModel
@@ -46,12 +46,7 @@ class MSGraphAgent:
         {"name": "me_sendMail", "arguments": {...}}
     """
 
-    def __init__(
-        self,
-        model: Any,
-        tokenizer: Any,
-        device: str = "cuda"
-    ):
+    def __init__(self, model: Any, tokenizer: Any, device: str = "cuda"):
         """
         Initialize the agent.
 
@@ -72,7 +67,7 @@ class MSGraphAgent:
         base_model_id: str = "NousResearch/Hermes-3-Llama-3.1-8B",
         load_in_4bit: bool = False,
         device_map: str = "auto",
-        torch_dtype: torch.dtype = torch.bfloat16
+        torch_dtype: torch.dtype = torch.bfloat16,
     ) -> "MSGraphAgent":
         """
         Load a trained agent from a saved adapter.
@@ -119,10 +114,7 @@ class MSGraphAgent:
         model = model.merge_and_unload()
 
         # Load tokenizer
-        tokenizer = AutoTokenizer.from_pretrained(
-            base_model_id,
-            trust_remote_code=True
-        )
+        tokenizer = AutoTokenizer.from_pretrained(base_model_id, trust_remote_code=True)
 
         device = "cuda" if torch.cuda.is_available() else "cpu"
         logger.info("Agent loaded successfully on %s", device)
@@ -135,7 +127,7 @@ class MSGraphAgent:
         repo_id: str,
         base_model_id: str = "NousResearch/Hermes-3-Llama-3.1-8B",
         revision: str = "main",
-        **kwargs
+        **kwargs,
     ) -> "MSGraphAgent":
         """
         Load a trained agent from Hugging Face Hub.
@@ -155,20 +147,18 @@ class MSGraphAgent:
         adapter_path = snapshot_download(repo_id=repo_id, revision=revision)
 
         return cls.from_pretrained(
-            adapter_path=adapter_path,
-            base_model_id=base_model_id,
-            **kwargs
+            adapter_path=adapter_path, base_model_id=base_model_id, **kwargs
         )
 
     def generate(
         self,
         instruction: str,
-        tool: Optional[Union[Dict[str, Any], str]] = None,
-        tools: Optional[List[Dict[str, Any]]] = None,
+        tool: dict[str, Any] | str | None = None,
+        tools: list[dict[str, Any]] | None = None,
         max_new_tokens: int = 256,
         temperature: float = 0.1,
-        return_dict: bool = True
-    ) -> Union[Dict[str, Any], str]:
+        return_dict: bool = True,
+    ) -> dict[str, Any] | str:
         """
         Generate a tool call for the given instruction.
 
@@ -200,22 +190,17 @@ class MSGraphAgent:
             {"role": "system", "content": SYSTEM_PROMPT},
             {
                 "role": "user",
-                "content": f"User Request: {instruction}\nAvailable Tool: {tool_str}"
-            }
+                "content": f"User Request: {instruction}\nAvailable Tool: {tool_str}",
+            },
         ]
 
         # Apply chat template
         prompt = self.tokenizer.apply_chat_template(
-            messages,
-            tokenize=False,
-            add_generation_prompt=True
+            messages, tokenize=False, add_generation_prompt=True
         )
 
         # Tokenize
-        inputs = self.tokenizer(
-            prompt,
-            return_tensors="pt"
-        ).to(self.device)
+        inputs = self.tokenizer(prompt, return_tensors="pt").to(self.device)
 
         # Generate
         with torch.no_grad():
@@ -229,8 +214,7 @@ class MSGraphAgent:
 
         # Decode only new tokens
         response = self.tokenizer.decode(
-            outputs[0][inputs.input_ids.shape[1]:],
-            skip_special_tokens=True
+            outputs[0][inputs.input_ids.shape[1] :], skip_special_tokens=True
         ).strip()
 
         # Parse if requested
@@ -246,9 +230,9 @@ class MSGraphAgent:
     def __call__(
         self,
         instruction: str,
-        tool: Optional[Union[Dict[str, Any], str]] = None,
-        **kwargs
-    ) -> Union[Dict[str, Any], str]:
+        tool: dict[str, Any] | str | None = None,
+        **kwargs,
+    ) -> dict[str, Any] | str:
         """
         Shorthand for generate().
 
@@ -275,11 +259,14 @@ COMMON_TOOLS = {
                 "properties": {
                     "subject": {"type": "string", "description": "Email subject"},
                     "body": {"type": "string", "description": "Email body content"},
-                    "toRecipients": {"type": "array", "description": "List of recipients"}
+                    "toRecipients": {
+                        "type": "array",
+                        "description": "List of recipients",
+                    },
                 },
-                "required": ["subject", "toRecipients"]
-            }
-        }
+                "required": ["subject", "toRecipients"],
+            },
+        },
     },
     "list_users": {
         "type": "function",
@@ -290,11 +277,14 @@ COMMON_TOOLS = {
                 "type": "object",
                 "properties": {
                     "$filter": {"type": "string", "description": "OData filter query"},
-                    "$select": {"type": "string", "description": "Properties to select"},
-                    "$top": {"type": "integer", "description": "Number of results"}
-                }
-            }
-        }
+                    "$select": {
+                        "type": "string",
+                        "description": "Properties to select",
+                    },
+                    "$top": {"type": "integer", "description": "Number of results"},
+                },
+            },
+        },
     },
     "list_events": {
         "type": "function",
@@ -306,10 +296,10 @@ COMMON_TOOLS = {
                 "properties": {
                     "$filter": {"type": "string", "description": "Filter events"},
                     "$orderby": {"type": "string", "description": "Order events by"},
-                    "$top": {"type": "integer", "description": "Number of events"}
-                }
-            }
-        }
+                    "$top": {"type": "integer", "description": "Number of events"},
+                },
+            },
+        },
     },
     "get_drive_items": {
         "type": "function",
@@ -320,11 +310,14 @@ COMMON_TOOLS = {
                 "type": "object",
                 "properties": {
                     "$filter": {"type": "string", "description": "Filter items"},
-                    "$select": {"type": "string", "description": "Properties to select"}
-                }
-            }
-        }
-    }
+                    "$select": {
+                        "type": "string",
+                        "description": "Properties to select",
+                    },
+                },
+            },
+        },
+    },
 }
 
 
@@ -332,40 +325,38 @@ def main():
     """Interactive CLI for the MSGraph Agent."""
     import argparse
 
-    parser = argparse.ArgumentParser(
-        description="Interactive MSGraph Tool Agent"
-    )
+    parser = argparse.ArgumentParser(description="Interactive MSGraph Tool Agent")
     parser.add_argument(
         "--adapter-path",
         type=str,
         default="msgraph-tool-agent-8b",
-        help="Path to trained LoRA adapter"
+        help="Path to trained LoRA adapter",
     )
     parser.add_argument(
         "--base-model",
         type=str,
         default="NousResearch/Hermes-3-Llama-3.1-8B",
-        help="Base model identifier"
+        help="Base model identifier",
     )
 
     args = parser.parse_args()
 
     from msgraph_tool_agent_8b.utils.logging import setup_logging
+
     setup_logging()
 
     # Load agent
     try:
         agent = MSGraphAgent.from_pretrained(
-            adapter_path=args.adapter_path,
-            base_model_id=args.base_model
+            adapter_path=args.adapter_path, base_model_id=args.base_model
         )
     except FileNotFoundError as e:
         logger.error(str(e))
         return
 
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("MSGRAPH TOOL AGENT - Interactive Mode")
-    print("="*60)
+    print("=" * 60)
     print("\nAvailable tools: send_mail, list_users, list_events, get_drive_items")
     print("Type 'quit' or 'exit' to stop.\n")
 
@@ -385,7 +376,9 @@ def main():
                 tool = COMMON_TOOLS["send_mail"]
             elif any(kw in user_input.lower() for kw in ["user", "person", "people"]):
                 tool = COMMON_TOOLS["list_users"]
-            elif any(kw in user_input.lower() for kw in ["calendar", "event", "meeting"]):
+            elif any(
+                kw in user_input.lower() for kw in ["calendar", "event", "meeting"]
+            ):
                 tool = COMMON_TOOLS["list_events"]
             elif any(kw in user_input.lower() for kw in ["drive", "file", "document"]):
                 tool = COMMON_TOOLS["get_drive_items"]

@@ -5,11 +5,10 @@ Fine-tunes LLMs using QLoRA for Microsoft Graph API tool calling.
 """
 
 import os
-from typing import Any, Dict, List, Optional
 
 import torch
-from datasets import load_dataset, DatasetDict
-from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
+from datasets import DatasetDict, load_dataset
+from peft import LoraConfig, prepare_model_for_kbit_training
 from transformers import (
     AutoModelForCausalLM,
     AutoTokenizer,
@@ -52,8 +51,8 @@ class GraphToolTrainer:
 
     def __init__(
         self,
-        model_config: Optional[ModelConfig] = None,
-        training_config: Optional[TrainingConfig] = None
+        model_config: ModelConfig | None = None,
+        training_config: TrainingConfig | None = None,
     ):
         """
         Initialize the trainer.
@@ -64,11 +63,11 @@ class GraphToolTrainer:
         """
         self.model_config = model_config or ModelConfig()
         self.training_config = training_config or TrainingConfig()
-        self.model: Optional[PreTrainedModel] = None
-        self.tokenizer: Optional[PreTrainedTokenizer] = None
+        self.model: PreTrainedModel | None = None
+        self.tokenizer: PreTrainedTokenizer | None = None
         logger.info(
             "Initialized GraphToolTrainer with base model: %s",
-            self.model_config.base_model_id
+            self.model_config.base_model_id,
         )
 
     def _get_quantization_config(self) -> BitsAndBytesConfig:
@@ -142,10 +141,7 @@ class GraphToolTrainer:
         tokenizer.padding_side = "right"
         return tokenizer
 
-    def _format_chat_template(
-        self,
-        example: Dict[str, str]
-    ) -> str:
+    def _format_chat_template(self, example: dict[str, str]) -> str:
         """
         Format a single example using the model's chat template.
 
@@ -159,13 +155,11 @@ class GraphToolTrainer:
             {"role": "system", "content": SYSTEM_PROMPT},
             {
                 "role": "user",
-                "content": f"User Request: {example['instruction']}\nAvailable Tool: {example['input']}"
+                "content": f"User Request: {example['instruction']}\nAvailable Tool: {example['input']}",
             },
-            {"role": "assistant", "content": example['output']}
+            {"role": "assistant", "content": example["output"]},
         ]
-        text = self.tokenizer.apply_chat_template(
-            messages, tokenize=False
-        )
+        text = self.tokenizer.apply_chat_template(messages, tokenize=False)
         return text
 
     def _load_dataset(self, data_file: str) -> DatasetDict:
@@ -198,13 +192,10 @@ class GraphToolTrainer:
 
         # Split into train/test
         dataset = dataset.train_test_split(
-            test_size=self.training_config.test_size,
-            seed=self.training_config.seed
+            test_size=self.training_config.test_size, seed=self.training_config.seed
         )
         logger.info(
-            "Split: %d train, %d test",
-            len(dataset["train"]),
-            len(dataset["test"])
+            "Split: %d train, %d test", len(dataset["train"]), len(dataset["test"])
         )
 
         return dataset
@@ -214,7 +205,7 @@ class GraphToolTrainer:
         data_file: str = "./data/graph_tool_dataset.jsonl",
         output_name: str = "msgraph-tool-agent-8b",
         push_to_hub: bool = False,
-        hub_model_id: Optional[str] = None
+        hub_model_id: str | None = None,
     ) -> str:
         """
         Train the model on the Microsoft Graph tool calling dataset.
@@ -307,18 +298,25 @@ class GraphToolTrainer:
 
         # Log training config
         effective_batch_size = (
-            self.training_config.per_device_train_batch_size *
-            self.training_config.gradient_accumulation_steps
+            self.training_config.per_device_train_batch_size
+            * self.training_config.gradient_accumulation_steps
         )
         logger.info("Training configuration:")
         logger.info("  Epochs: %d", self.training_config.num_train_epochs)
-        logger.info("  Batch size: %d", self.training_config.per_device_train_batch_size)
-        logger.info("  Gradient accumulation: %d", self.training_config.gradient_accumulation_steps)
+        logger.info(
+            "  Batch size: %d", self.training_config.per_device_train_batch_size
+        )
+        logger.info(
+            "  Gradient accumulation: %d",
+            self.training_config.gradient_accumulation_steps,
+        )
         logger.info("  Effective batch size: %d", effective_batch_size)
         logger.info("  Learning rate: %.2e", self.training_config.learning_rate)
         logger.info("  LoRA rank: %d", self.model_config.lora_r)
         logger.info("  Eval strategy: %s", self.training_config.eval_strategy)
-        logger.info("  Load best model: %s", self.training_config.load_best_model_at_end)
+        logger.info(
+            "  Load best model: %s", self.training_config.load_best_model_at_end
+        )
         logger.info("  Report to: %s", self.training_config.report_to)
 
         # Train
@@ -348,67 +346,48 @@ def main():
         "--model-id",
         type=str,
         default="NousResearch/Hermes-3-Llama-3.1-8B",
-        help="Base model identifier"
+        help="Base model identifier",
     )
     parser.add_argument(
         "--output-name",
         type=str,
         default="msgraph-tool-agent-8b",
-        help="Output adapter directory name"
+        help="Output adapter directory name",
     )
     parser.add_argument(
         "--data-file",
         type=str,
         default="./data/graph_tool_dataset.jsonl",
-        help="Path to training dataset"
+        help="Path to training dataset",
     )
     parser.add_argument(
-        "--output-dir",
-        type=str,
-        default="./results",
-        help="Directory for checkpoints"
+        "--output-dir", type=str, default="./results", help="Directory for checkpoints"
     )
     parser.add_argument(
-        "--epochs",
-        type=int,
-        default=3,
-        help="Number of training epochs"
+        "--epochs", type=int, default=3, help="Number of training epochs"
     )
     parser.add_argument(
-        "--batch-size",
-        type=int,
-        default=4,
-        help="Per-device batch size"
+        "--batch-size", type=int, default=4, help="Per-device batch size"
     )
     parser.add_argument(
         "--gradient-accumulation",
         type=int,
         default=4,
-        help="Gradient accumulation steps"
+        help="Gradient accumulation steps",
     )
     parser.add_argument(
-        "--learning-rate",
-        type=float,
-        default=1e-4,
-        help="Learning rate"
+        "--learning-rate", type=float, default=1e-4, help="Learning rate"
     )
-    parser.add_argument(
-        "--lora-rank",
-        type=int,
-        default=32,
-        help="LoRA adapter rank"
-    )
+    parser.add_argument("--lora-rank", type=int, default=32, help="LoRA adapter rank")
     # Early stopping options
     parser.add_argument(
-        "--no-early-stopping",
-        action="store_true",
-        help="Disable early stopping"
+        "--no-early-stopping", action="store_true", help="Disable early stopping"
     )
     parser.add_argument(
         "--early-stopping-patience",
         type=int,
         default=3,
-        help="Early stopping patience (number of eval steps)"
+        help="Early stopping patience (number of eval steps)",
     )
     # Experiment tracking
     parser.add_argument(
@@ -416,30 +395,26 @@ def main():
         type=str,
         choices=["none", "wandb", "tensorboard", "all"],
         default="none",
-        help="Experiment tracking: none, wandb, tensorboard, or all"
+        help="Experiment tracking: none, wandb, tensorboard, or all",
     )
     parser.add_argument(
         "--run-name",
         type=str,
         default=None,
-        help="Name for the training run (for W&B/TensorBoard)"
+        help="Name for the training run (for W&B/TensorBoard)",
     )
     # Hub options
     parser.add_argument(
-        "--push-to-hub",
-        action="store_true",
-        help="Push model to Hugging Face Hub"
+        "--push-to-hub", action="store_true", help="Push model to Hugging Face Hub"
     )
     parser.add_argument(
-        "--hub-model-id",
-        type=str,
-        default=None,
-        help="Model ID for Hub upload"
+        "--hub-model-id", type=str, default=None, help="Model ID for Hub upload"
     )
 
     args = parser.parse_args()
 
     from msgraph_tool_agent_8b.utils.logging import setup_logging
+
     setup_logging()
 
     # Create configs
@@ -461,8 +436,7 @@ def main():
     )
 
     trainer = GraphToolTrainer(
-        model_config=model_config,
-        training_config=training_config
+        model_config=model_config, training_config=training_config
     )
     trainer.train(
         data_file=args.data_file,
