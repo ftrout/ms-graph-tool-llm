@@ -83,6 +83,7 @@ msgraph-train = "msgraph_tool_agent_8b.training.trainer:main"
 msgraph-evaluate = "msgraph_tool_agent_8b.evaluation.evaluator:main"
 msgraph-agent = "msgraph_tool_agent_8b.inference.agent:main"
 msgraph-upload = "msgraph_tool_agent_8b.hub:main"
+msgraph-upload-dataset = "msgraph_tool_agent_8b.hub:dataset_main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/msgraph_tool_agent_8b"]

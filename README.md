@@ -178,6 +178,26 @@ upload_to_hub(
 )
 ```
 
+### Uploading Datasets
+
+You can also upload your generated training dataset:
+
+```bash
+msgraph-upload-dataset ./data/graph_tool_dataset.jsonl username/msgraph-tool-dataset
+```
+
+Or programmatically:
+
+```python
+from msgraph_tool_agent_8b.hub import upload_dataset_to_hub
+
+upload_dataset_to_hub(
+    dataset_path="./data/graph_tool_dataset.jsonl",
+    repo_id="username/msgraph-tool-dataset",
+    private=False
+)
+```
+
 ## Model Architecture
 
 | Component | Specification |
