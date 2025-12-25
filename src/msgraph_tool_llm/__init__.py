@@ -1,5 +1,5 @@
 """
-MSGraph Tool LLM - Enterprise-Grade Tool-Calling Agent for Microsoft Graph API.
+msgraph-tool-agent-8b - Enterprise-Grade Tool-Calling Agent for Microsoft Graph API.
 
 A specialized LLM fine-tuning pipeline that trains models to convert natural language
 into precise, schema-validated JSON tool calls for the Microsoft Graph API.

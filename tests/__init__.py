@@ -1,1 +1,1 @@
-"""Tests for MSGraph Tool LLM."""
+"""Tests for msgraph-tool-agent-8b."""

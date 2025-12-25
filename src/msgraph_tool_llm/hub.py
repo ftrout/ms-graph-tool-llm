@@ -1,5 +1,5 @@
 """
-Hugging Face Hub integration for MSGraph Tool LLM.
+Hugging Face Hub integration for msgraph-tool-agent-8b.
 
 Provides functionality for uploading trained models to the Hugging Face Hub.
 """
@@ -166,11 +166,11 @@ The training set includes:
 ## Citation
 
 ```bibtex
-@misc{{msgraph-tool-llm,
-  title={{MSGraph Tool LLM: Enterprise Tool-Calling Agent for Microsoft Graph}},
+@misc{{msgraph-tool-agent-8b,
+  title={{msgraph-tool-agent-8b: Enterprise Tool-Calling Agent for Microsoft Graph}},
   author={{ftrout}},
   year={{2024}},
-  url={{https://github.com/ftrout/ms-graph-tool-llm}}
+  url={{https://github.com/ftrout/msgraph-tool-agent-8b}}
 }}
 ```
 
@@ -217,7 +217,7 @@ def upload_to_hub(
     repo_id: str,
     base_model: str = "NousResearch/Hermes-3-Llama-3.1-8B",
     private: bool = False,
-    commit_message: str = "Upload MSGraph Tool LLM adapter",
+    commit_message: str = "Upload msgraph-tool-agent-8b adapter",
     create_model_card_file: bool = True
 ) -> str:
     """
@@ -292,7 +292,7 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Upload trained MSGraph Tool LLM to Hugging Face Hub"
+        description="Upload trained msgraph-tool-agent-8b to Hugging Face Hub"
     )
     parser.add_argument(
         "adapter_path",
@@ -318,7 +318,7 @@ def main():
     parser.add_argument(
         "--commit-message",
         type=str,
-        default="Upload MSGraph Tool LLM adapter",
+        default="Upload msgraph-tool-agent-8b adapter",
         help="Commit message for the upload"
     )
     parser.add_argument(

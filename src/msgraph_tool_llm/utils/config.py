@@ -1,4 +1,4 @@
-"""Configuration classes for MSGraph Tool LLM."""
+"""Configuration classes for msgraph-tool-agent-8b."""
 
 from dataclasses import dataclass, field
 from typing import List, Optional
