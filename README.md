@@ -462,7 +462,7 @@ MIT License - see [LICENSE](LICENSE) for details.
 @misc{msgraph-tool-agent-8b,
   title={msgraph-tool-agent-8b: Enterprise Tool-Calling Agent for Microsoft Graph},
   author={ftrout},
-  year={2024},
+  year={2025},
   url={https://github.com/ftrout/msgraph-tool-agent-8b}
 }
 ```

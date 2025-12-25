@@ -115,7 +115,7 @@ class GraphToolEvaluator:
 
     Example:
         >>> evaluator = GraphToolEvaluator(
-        ...     adapter_path="./msgraph-tool-agent-7b"
+        ...     adapter_path="./msgraph-tool-agent-8b"
         ... )
         >>> metrics = evaluator.evaluate_dataset("./data/test.jsonl")
         >>> print(metrics)
@@ -160,20 +160,21 @@ class GraphToolEvaluator:
 
         logger.info("Loading model...")
 
-        # Load base model with 4-bit quantization
+        # Load base model in bfloat16 (not quantized) to allow adapter merging
         self.model = AutoModelForCausalLM.from_pretrained(
             self.base_model_id,
-            load_in_4bit=True,
             device_map="auto",
             torch_dtype=torch.bfloat16,
             trust_remote_code=True,
         )
 
-        # Load adapter if provided
+        # Load and merge adapter if provided
         if self.adapter_path and os.path.exists(self.adapter_path):
             logger.info("Loading adapter from %s...", self.adapter_path)
             self.model = PeftModel.from_pretrained(self.model, self.adapter_path)
-            logger.info("Adapter loaded successfully")
+            logger.info("Merging adapter weights...")
+            self.model = self.model.merge_and_unload()
+            logger.info("Adapter merged successfully")
 
         # Load tokenizer
         self.tokenizer = AutoTokenizer.from_pretrained(
@@ -181,6 +182,7 @@ class GraphToolEvaluator:
             trust_remote_code=True
         )
 
+        self.model.eval()
         logger.info("Model loaded successfully on %s", self.device)
 
     def generate(

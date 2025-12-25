@@ -7,12 +7,13 @@ training data for fine-tuning tool-calling language models.
 
 import argparse
 import json
-import logging
 import os
 import re
-from typing import Any, Optional
+from typing import Any, Dict, List, Optional
 
-logger = logging.getLogger(__name__)
+from msgraph_tool_agent_8b.utils.logging import get_logger
+
+logger = get_logger("data.harvester")
 
 # Default OpenAPI spec URL
 DEFAULT_OPENAPI_URL = (
@@ -96,8 +97,8 @@ class GraphAPIHarvester:
         return text.strip()
 
     def _format_tool(
-        self, path: str, method: str, operation: dict[str, Any]
-    ) -> dict[str, Any]:
+        self, path: str, method: str, operation: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Format an OpenAPI operation as a tool definition.
 
@@ -116,7 +117,7 @@ class GraphAPIHarvester:
             operation.get("summary", operation.get("description", ""))
         )
 
-        parameters: dict[str, Any] = {
+        parameters: Dict[str, Any] = {
             "type": "object",
             "properties": {},
             "required": [],
@@ -156,8 +157,8 @@ class GraphAPIHarvester:
         }
 
     def _generate_example_args(
-        self, params: dict[str, Any]
-    ) -> dict[str, Any]:
+        self, params: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Generate example arguments based on parameter definitions.
 
@@ -167,7 +168,7 @@ class GraphAPIHarvester:
         Returns:
             Dictionary of example argument values.
         """
-        args: dict[str, Any] = {}
+        args: Dict[str, Any] = {}
         properties = params.get("properties", {})
 
         for name, prop in properties.items():
@@ -201,7 +202,7 @@ class GraphAPIHarvester:
 
         return args
 
-    def download_spec(self) -> dict[str, Any]:
+    def download_spec(self) -> Dict[str, Any]:
         """
         Download the OpenAPI specification.
 
@@ -224,7 +225,7 @@ class GraphAPIHarvester:
 
         return yaml.safe_load(response.content)
 
-    def process_spec(self, spec: dict[str, Any]) -> list[dict[str, Any]]:
+    def process_spec(self, spec: Dict[str, Any]) -> List[Dict[str, Any]]:
         """
         Process the OpenAPI spec and generate training samples.
 
@@ -234,7 +235,7 @@ class GraphAPIHarvester:
         Returns:
             List of training samples with instruction, input, and output.
         """
-        samples: list[dict[str, Any]] = []
+        samples: List[Dict[str, Any]] = []
         paths = spec.get("paths", {})
 
         logger.info(f"Processing {len(paths)} endpoints")
@@ -284,7 +285,7 @@ class GraphAPIHarvester:
 
     def harvest(
         self,
-        output_dir: str = "./data_graph",
+        output_dir: str = "./data",
         output_filename: str = "graph_tool_dataset.jsonl",
     ) -> str:
         """
@@ -323,7 +324,7 @@ def main() -> None:
     )
     parser.add_argument(
         "--output-dir",
-        default="./data_graph",
+        default="./data",
         help="Output directory for dataset",
     )
     parser.add_argument(
@@ -345,10 +346,9 @@ def main() -> None:
     args = parser.parse_args()
 
     # Configure logging
-    logging.basicConfig(
-        level=logging.DEBUG if args.verbose else logging.INFO,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    )
+    import logging
+    from msgraph_tool_agent_8b.utils.logging import setup_logging
+    setup_logging(level=logging.DEBUG if args.verbose else logging.INFO)
 
     # Run harvester
     harvester = GraphAPIHarvester(openapi_url=args.openapi_url)

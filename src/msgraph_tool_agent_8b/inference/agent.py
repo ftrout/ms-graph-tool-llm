@@ -37,7 +37,7 @@ class MSGraphAgent:
         device: Inference device
 
     Example:
-        >>> agent = MSGraphAgent.from_pretrained("./msgraph-tool-agent-7b")
+        >>> agent = MSGraphAgent.from_pretrained("./msgraph-tool-agent-8b")
         >>> result = agent.generate(
         ...     "Send an email to john@example.com",
         ...     tool=email_tool_definition

@@ -215,7 +215,7 @@ The training set includes:
 @misc{{msgraph-tool-agent-8b,
   title={{msgraph-tool-agent-8b: Enterprise Tool-Calling Agent for Microsoft Graph}},
   author={{ftrout}},
-  year={{2024}},
+  year={{2025}},
   url={{https://github.com/ftrout/msgraph-tool-agent-8b}}
 }}
 ```
@@ -349,7 +349,7 @@ msgraph-train --data-file ./data/graph_tool_dataset.jsonl
 @misc{{msgraph-tool-dataset,
   title={{Microsoft Graph Tool-Calling Dataset}},
   author={{ftrout}},
-  year={{2024}},
+  year={{2025}},
   url={{https://github.com/ftrout/msgraph-tool-agent-8b}}
 }}
 ```
