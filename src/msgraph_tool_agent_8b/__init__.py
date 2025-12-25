@@ -12,12 +12,14 @@ Example:
     {"name": "me_sendMail", "arguments": {"subject": "...", "toRecipients": [...]}}
 """
 
+from typing import Any
+
 __version__ = "1.0.0"
 __author__ = "ftrout"
 __license__ = "MIT"
 
 
-def __getattr__(name: str):
+def __getattr__(name: str) -> Any:
     """Lazy import for optional dependencies."""
     if name == "MSGraphAgent":
         from msgraph_tool_agent_8b.inference.agent import MSGraphAgent

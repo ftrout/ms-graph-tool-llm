@@ -151,6 +151,8 @@ class GraphToolTrainer:
         Returns:
             Formatted chat string
         """
+        assert self.tokenizer is not None, "Tokenizer not initialized"
+
         messages = [
             {"role": "system", "content": SYSTEM_PROMPT},
             {
@@ -160,7 +162,7 @@ class GraphToolTrainer:
             {"role": "assistant", "content": example["output"]},
         ]
         text = self.tokenizer.apply_chat_template(messages, tokenize=False)
-        return text
+        return str(text)
 
     def _load_dataset(self, data_file: str) -> DatasetDict:
         """
@@ -335,7 +337,7 @@ class GraphToolTrainer:
         return output_name
 
 
-def main():
+def main() -> None:
     """CLI entry point for training."""
     import argparse
 

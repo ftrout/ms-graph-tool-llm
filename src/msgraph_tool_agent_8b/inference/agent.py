@@ -321,7 +321,7 @@ COMMON_TOOLS = {
 }
 
 
-def main():
+def main() -> None:
     """Interactive CLI for the MSGraph Agent."""
     import argparse
 

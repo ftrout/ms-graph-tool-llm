@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    pass
+    from transformers import PreTrainedModel, PreTrainedTokenizer
 
 from msgraph_tool_agent_8b.utils.logging import get_logger
 
@@ -144,8 +144,8 @@ class GraphToolEvaluator:
                 self.device = "cuda" if torch.cuda.is_available() else "cpu"
             except ImportError:
                 self.device = "cpu"
-        self.model = None
-        self.tokenizer = None
+        self.model: PreTrainedModel | None = None
+        self.tokenizer: PreTrainedTokenizer | None = None
         logger.info(
             "Initialized evaluator with base model: %s, adapter: %s",
             base_model_id,
@@ -181,7 +181,8 @@ class GraphToolEvaluator:
             self.base_model_id, trust_remote_code=True
         )
 
-        self.model.eval()
+        if self.model is not None:
+            self.model.eval()
         logger.info("Model loaded successfully on %s", self.device)
 
     def generate(
@@ -204,6 +205,14 @@ class GraphToolEvaluator:
             Tuple of (generated_text, inference_time, num_tokens)
         """
         import torch
+
+        # Load model if not already loaded
+        if self.model is None or self.tokenizer is None:
+            self.load_model()
+
+        # Assert model and tokenizer are loaded (for type checker)
+        assert self.model is not None, "Model not loaded"
+        assert self.tokenizer is not None, "Tokenizer not loaded"
 
         messages = [
             {"role": "system", "content": SYSTEM_PROMPT},
@@ -472,7 +481,7 @@ DEFAULT_TEST_TOOL = {
 }
 
 
-def main():
+def main() -> None:
     """CLI entry point for evaluation."""
     import argparse
 
