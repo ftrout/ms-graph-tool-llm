@@ -1,4 +1,4 @@
-# Microsoft Graph AI Agent Model
+# Microsoft Graph Tool LLM
 
 **An Enterprise-Grade Tool-Calling AI for Microsoft Graph**
 
