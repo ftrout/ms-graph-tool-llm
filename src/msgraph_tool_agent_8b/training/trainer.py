@@ -46,7 +46,7 @@ class GraphToolTrainer:
         >>> trainer = GraphToolTrainer()
         >>> trainer.train(
         ...     data_file="./data/graph_tool_dataset.jsonl",
-        ...     output_name="msgraph-tool-agent-7b"
+        ...     output_name="msgraph-tool-agent-8b"
         ... )
     """
 
@@ -212,7 +212,7 @@ class GraphToolTrainer:
     def train(
         self,
         data_file: str = "./data/graph_tool_dataset.jsonl",
-        output_name: str = "msgraph-tool-agent-7b",
+        output_name: str = "msgraph-tool-agent-8b",
         push_to_hub: bool = False,
         hub_model_id: Optional[str] = None
     ) -> str:

@@ -6,7 +6,7 @@ into precise, schema-validated JSON tool calls for the Microsoft Graph API.
 
 Example:
     >>> from msgraph_tool_agent_8b import MSGraphAgent
-    >>> agent = MSGraphAgent.from_pretrained("ftrout/msgraph-tool-agent-7b")
+    >>> agent = MSGraphAgent.from_pretrained("ftrout/msgraph-tool-agent-8b")
     >>> result = agent.generate("Send an email to john@contoso.com about the meeting")
     >>> print(result)
     {"name": "me_sendMail", "arguments": {"subject": "...", "toRecipients": [...]}}
