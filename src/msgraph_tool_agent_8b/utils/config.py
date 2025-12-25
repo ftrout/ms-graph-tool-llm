@@ -84,14 +84,31 @@ class TrainingConfig:
     fp16: bool = False
     gradient_checkpointing: bool = True
 
+    # Evaluation strategy
+    eval_strategy: str = "steps"  # "steps", "epoch", or "no"
+    eval_steps: int = 100
+
+    # Early stopping
+    early_stopping: bool = True
+    early_stopping_patience: int = 3
+    early_stopping_threshold: float = 0.001
+
+    # Best model selection
+    load_best_model_at_end: bool = True
+    metric_for_best_model: str = "eval_loss"
+    greater_is_better: bool = False
+
     # Logging and saving
     logging_steps: int = 10
     save_steps: int = 100
-    eval_steps: int = 100
     save_total_limit: int = 3
 
+    # Experiment tracking: "none", "wandb", "tensorboard", or "all"
+    report_to: str = "none"
+    run_name: Optional[str] = None
+
     # Dataset
-    test_size: float = 0.05
+    test_size: float = 0.1
     seed: int = 42
 
     # Output
@@ -110,10 +127,19 @@ class TrainingConfig:
             "bf16": self.bf16,
             "fp16": self.fp16,
             "gradient_checkpointing": self.gradient_checkpointing,
+            "eval_strategy": self.eval_strategy,
+            "eval_steps": self.eval_steps,
+            "early_stopping": self.early_stopping,
+            "early_stopping_patience": self.early_stopping_patience,
+            "early_stopping_threshold": self.early_stopping_threshold,
+            "load_best_model_at_end": self.load_best_model_at_end,
+            "metric_for_best_model": self.metric_for_best_model,
+            "greater_is_better": self.greater_is_better,
             "logging_steps": self.logging_steps,
             "save_steps": self.save_steps,
-            "eval_steps": self.eval_steps,
             "save_total_limit": self.save_total_limit,
+            "report_to": self.report_to,
+            "run_name": self.run_name,
             "test_size": self.test_size,
             "seed": self.seed,
             "output_dir": self.output_dir,
