@@ -13,7 +13,7 @@ MSGraph Tool LLM is a specialized fine-tuning pipeline that trains language mode
 
 - **Schema-First Training**: Automatically generates training data from the official Microsoft Graph OpenAPI specification
 - **Strict JSON Compliance**: Fine-tuned to output valid JSON objects that strictly adhere to API tool definitions
-- **State-of-the-Art Foundation**: Built on **Qwen 2.5 7B Instruct** with superior coding and logic capabilities
+- **State-of-the-Art Foundation**: Built on **Hermes 3 Llama 3.1 8B** - purpose-built for function calling with superior structured output
 - **Efficient Fine-Tuning**: Uses **QLoRA** (4-bit quantization + LoRA) to train on consumer-grade hardware
 - **Production Ready**: Comprehensive evaluation metrics, logging, and Hugging Face Hub integration
 - **Modular Design**: Clean package structure with reusable components
@@ -40,7 +40,7 @@ pip install -e ".[dev]"
 from msgraph_tool_llm import MSGraphAgent
 
 # Load a trained agent
-agent = MSGraphAgent.from_pretrained("./msgraph-tool-agent-7b")
+agent = MSGraphAgent.from_pretrained("./msgraph-tool-agent-8b")
 
 # Define a tool
 email_tool = {
@@ -96,7 +96,7 @@ Trains the model using QLoRA:
 # Using CLI
 msgraph-train \
     --data-file ./data/graph_tool_dataset.jsonl \
-    --output-name msgraph-tool-agent-7b \
+    --output-name msgraph-tool-agent-8b \
     --epochs 3 \
     --batch-size 4
 
@@ -106,11 +106,11 @@ from msgraph_tool_llm import GraphToolTrainer
 trainer = GraphToolTrainer()
 trainer.train(
     data_file="./data/graph_tool_dataset.jsonl",
-    output_name="msgraph-tool-agent-7b"
+    output_name="msgraph-tool-agent-8b"
 )
 ```
 
-**Output**: `./msgraph-tool-agent-7b/` (LoRA adapter)
+**Output**: `./msgraph-tool-agent-8b/` (LoRA adapter)
 
 ### Stage 3: Evaluation
 
@@ -119,12 +119,12 @@ Evaluates the trained model:
 ```bash
 # Single query evaluation
 msgraph-evaluate \
-    --adapter-path ./msgraph-tool-agent-7b \
+    --adapter-path ./msgraph-tool-agent-8b \
     --query "List all users with displayName starting with 'A'"
 
 # Dataset evaluation with metrics
 msgraph-evaluate \
-    --adapter-path ./msgraph-tool-agent-7b \
+    --adapter-path ./msgraph-tool-agent-8b \
     --data-file ./data/test_dataset.jsonl \
     --save-results ./evaluation_results.json
 ```
@@ -134,7 +134,7 @@ msgraph-evaluate \
 Launch the interactive agent:
 
 ```bash
-msgraph-agent --adapter-path ./msgraph-tool-agent-7b
+msgraph-agent --adapter-path ./msgraph-tool-agent-8b
 ```
 
 ## Uploading to Hugging Face Hub
@@ -142,7 +142,7 @@ msgraph-agent --adapter-path ./msgraph-tool-agent-7b
 Upload your trained model to share with the community:
 
 ```bash
-msgraph-upload ./msgraph-tool-agent-7b username/msgraph-tool-agent-7b
+msgraph-upload ./msgraph-tool-agent-8b username/msgraph-tool-agent-8b
 ```
 
 Or programmatically:
@@ -151,8 +151,8 @@ Or programmatically:
 from msgraph_tool_llm.hub import upload_to_hub
 
 upload_to_hub(
-    adapter_path="./msgraph-tool-agent-7b",
-    repo_id="username/msgraph-tool-agent-7b",
+    adapter_path="./msgraph-tool-agent-8b",
+    repo_id="username/msgraph-tool-agent-8b",
     private=False
 )
 ```
@@ -161,14 +161,21 @@ upload_to_hub(
 
 | Component | Specification |
 |-----------|---------------|
-| **Base Model** | Qwen 2.5 7B Instruct |
-| **Format** | ChatML |
+| **Base Model** | NousResearch/Hermes-3-Llama-3.1-8B |
+| **Format** | ChatML (Hermes format) |
 | **Quantization** | 4-bit NF4 (Normal Float 4) |
 | **Adapter Rank (r)** | 32 |
 | **Adapter Alpha** | 64 |
 | **Target Modules** | q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj |
 | **Context Window** | 2048 tokens |
 | **Attention** | Flash Attention 2 (with SDPA fallback) |
+
+### Why Hermes 3?
+
+- **Purpose-built for function calling**: Trained specifically on tool-use datasets
+- **Reliable JSON output**: Less fine-tuning needed for structured output
+- **Strong base performance**: Llama 3.1 foundation with enhanced instruction following
+- **Active development**: NousResearch actively maintains and improves the model
 
 ## Project Structure
 

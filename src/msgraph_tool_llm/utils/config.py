@@ -10,7 +10,7 @@ class ModelConfig:
     """Configuration for the base model and LoRA adapter."""
 
     # Base model settings
-    base_model_id: str = "Qwen/Qwen2.5-7B-Instruct"
+    base_model_id: str = "NousResearch/Hermes-3-Llama-3.1-8B"
     model_type: str = "causal_lm"
 
     # Quantization settings
