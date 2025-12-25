@@ -20,6 +20,6 @@
       ]
     }
   },
-  "postCreateCommand": "pip install -e '.[dev]'",
+  "postCreateCommand": "rm -rf /usr/local/lib/python3.12/dist-packages/*.egg && pip install -e '.[dev]'",
   "remoteUser": "root"
 }
