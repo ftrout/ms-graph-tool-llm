@@ -144,37 +144,29 @@ class GraphToolTrainer:
 
     def _format_chat_template(
         self,
-        examples: Dict[str, List[str]]
-    ) -> List[str]:
+        example: Dict[str, str]
+    ) -> str:
         """
-        Format examples using the model's chat template.
+        Format a single example using the model's chat template.
 
         Args:
-            examples: Batch of examples with instruction/input/output keys
+            example: Single example with instruction/input/output keys
 
         Returns:
-            List of formatted chat strings
+            Formatted chat string
         """
-        texts = []
-        instructions = examples["instruction"]
-        inputs = examples["input"]
-        outputs = examples["output"]
-
-        for i in range(len(instructions)):
-            messages = [
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {
-                    "role": "user",
-                    "content": f"User Request: {instructions[i]}\nAvailable Tool: {inputs[i]}"
-                },
-                {"role": "assistant", "content": outputs[i]}
-            ]
-            text = self.tokenizer.apply_chat_template(
-                messages, tokenize=False
-            )
-            texts.append(text)
-
-        return texts
+        messages = [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {
+                "role": "user",
+                "content": f"User Request: {example['instruction']}\nAvailable Tool: {example['input']}"
+            },
+            {"role": "assistant", "content": example['output']}
+        ]
+        text = self.tokenizer.apply_chat_template(
+            messages, tokenize=False
+        )
+        return text
 
     def _load_dataset(self, data_file: str) -> DatasetDict:
         """
