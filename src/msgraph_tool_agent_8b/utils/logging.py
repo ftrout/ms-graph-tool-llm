@@ -2,13 +2,12 @@
 
 import logging
 import sys
-from typing import Optional
 
 
 def setup_logging(
     level: int = logging.INFO,
-    log_file: Optional[str] = None,
-    format_string: Optional[str] = None,
+    log_file: str | None = None,
+    format_string: str | None = None,
 ) -> logging.Logger:
     """
     Configure logging for the msgraph-tool-agent-8b package.

@@ -1,8 +1,7 @@
 """Configuration classes for msgraph-tool-agent-8b."""
 
-from dataclasses import dataclass, field
-from typing import List, Optional
 import json
+from dataclasses import dataclass, field
 
 
 @dataclass
@@ -23,7 +22,7 @@ class ModelConfig:
     lora_r: int = 32
     lora_alpha: int = 64
     lora_dropout: float = 0.05
-    lora_target_modules: List[str] = field(
+    lora_target_modules: list[str] = field(
         default_factory=lambda: [
             "q_proj",
             "k_proj",
@@ -69,7 +68,7 @@ class ModelConfig:
     @classmethod
     def load(cls, path: str) -> "ModelConfig":
         """Load config from JSON file."""
-        with open(path, "r") as f:
+        with open(path) as f:
             return cls.from_dict(json.load(f))
 
 
@@ -112,7 +111,7 @@ class TrainingConfig:
 
     # Experiment tracking: "none", "wandb", "tensorboard", or "all"
     report_to: str = "none"
-    run_name: Optional[str] = None
+    run_name: str | None = None
 
     # Dataset
     test_size: float = 0.1

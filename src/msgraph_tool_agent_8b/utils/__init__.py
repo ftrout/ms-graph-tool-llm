@@ -1,11 +1,11 @@
 """Utility modules for msgraph-tool-agent-8b."""
 
-from msgraph_tool_agent_8b.utils.logging import setup_logging, get_logger
 from msgraph_tool_agent_8b.utils.config import (
+    DEFAULT_MODEL_CONFIG,
     ModelConfig,
     TrainingConfig,
-    DEFAULT_MODEL_CONFIG,
 )
+from msgraph_tool_agent_8b.utils.logging import get_logger, setup_logging
 
 __all__ = [
     "setup_logging",

@@ -4,11 +4,9 @@ Hugging Face Hub integration for msgraph-tool-agent-8b.
 Provides functionality for uploading trained models and datasets to the Hugging Face Hub.
 """
 
-import json
 import os
-from typing import Optional
 
-from huggingface_hub import HfApi, create_repo, upload_file, upload_folder
+from huggingface_hub import create_repo, upload_file, upload_folder
 
 from msgraph_tool_agent_8b.utils.logging import get_logger
 
@@ -464,9 +462,6 @@ def upload_to_hub(
 
     logger.info("Uploading to Hugging Face Hub: %s", repo_id)
 
-    # Initialize API
-    api = HfApi()
-
     # Create repository if it doesn't exist
     try:
         create_repo(repo_id=repo_id, repo_type="model", private=private, exist_ok=True)
@@ -558,9 +553,6 @@ def upload_dataset_to_hub(
 
     logger.info("Uploading dataset to Hugging Face Hub: %s", repo_id)
 
-    # Initialize API
-    api = HfApi()
-
     # Create repository if it doesn't exist
     try:
         create_repo(
@@ -576,7 +568,7 @@ def upload_dataset_to_hub(
     if is_file:
         # Count samples in JSONL file
         num_samples = 0
-        with open(dataset_path, "r") as f:
+        with open(dataset_path) as f:
             for _ in f:
                 num_samples += 1
 
@@ -617,7 +609,7 @@ def upload_dataset_to_hub(
         for filename in os.listdir(dataset_path):
             if filename.endswith(".jsonl"):
                 filepath = os.path.join(dataset_path, filename)
-                with open(filepath, "r") as f:
+                with open(filepath) as f:
                     for _ in f:
                         num_samples += 1
 
@@ -685,7 +677,7 @@ def main():
     setup_logging()
 
     try:
-        url = upload_to_hub(
+        upload_to_hub(
             adapter_path=args.adapter_path,
             repo_id=args.repo_id,
             base_model=args.base_model,
@@ -693,7 +685,7 @@ def main():
             commit_message=args.commit_message,
             create_model_card_file=not args.no_model_card,
         )
-        print(f"\nModel uploaded successfully!")
+        print("\nModel uploaded successfully!")
         print(f"View at: https://huggingface.co/{args.repo_id}")
     except Exception as e:
         logger.error("Upload failed: %s", e)
@@ -735,14 +727,14 @@ def dataset_main():
     setup_logging()
 
     try:
-        url = upload_dataset_to_hub(
+        upload_dataset_to_hub(
             dataset_path=args.dataset_path,
             repo_id=args.repo_id,
             private=args.private,
             commit_message=args.commit_message,
             create_dataset_card_file=not args.no_dataset_card,
         )
-        print(f"\nDataset uploaded successfully!")
+        print("\nDataset uploaded successfully!")
         print(f"View at: https://huggingface.co/datasets/{args.repo_id}")
     except Exception as e:
         logger.error("Upload failed: %s", e)

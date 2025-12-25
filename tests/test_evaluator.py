@@ -1,6 +1,5 @@
 """Tests for the evaluation module."""
 
-import json
 import pytest
 
 from msgraph_tool_agent_8b.evaluation.evaluator import (

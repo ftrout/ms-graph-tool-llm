@@ -5,11 +5,10 @@ Fine-tunes LLMs using QLoRA for Microsoft Graph API tool calling.
 """
 
 import os
-from typing import Any, Dict, List, Optional
 
 import torch
-from datasets import load_dataset, DatasetDict
-from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
+from datasets import DatasetDict, load_dataset
+from peft import LoraConfig, prepare_model_for_kbit_training
 from transformers import (
     AutoModelForCausalLM,
     AutoTokenizer,
@@ -52,8 +51,8 @@ class GraphToolTrainer:
 
     def __init__(
         self,
-        model_config: Optional[ModelConfig] = None,
-        training_config: Optional[TrainingConfig] = None,
+        model_config: ModelConfig | None = None,
+        training_config: TrainingConfig | None = None,
     ):
         """
         Initialize the trainer.
@@ -64,8 +63,8 @@ class GraphToolTrainer:
         """
         self.model_config = model_config or ModelConfig()
         self.training_config = training_config or TrainingConfig()
-        self.model: Optional[PreTrainedModel] = None
-        self.tokenizer: Optional[PreTrainedTokenizer] = None
+        self.model: PreTrainedModel | None = None
+        self.tokenizer: PreTrainedTokenizer | None = None
         logger.info(
             "Initialized GraphToolTrainer with base model: %s",
             self.model_config.base_model_id,
@@ -142,7 +141,7 @@ class GraphToolTrainer:
         tokenizer.padding_side = "right"
         return tokenizer
 
-    def _format_chat_template(self, example: Dict[str, str]) -> str:
+    def _format_chat_template(self, example: dict[str, str]) -> str:
         """
         Format a single example using the model's chat template.
 
@@ -206,7 +205,7 @@ class GraphToolTrainer:
         data_file: str = "./data/graph_tool_dataset.jsonl",
         output_name: str = "msgraph-tool-agent-8b",
         push_to_hub: bool = False,
-        hub_model_id: Optional[str] = None,
+        hub_model_id: str | None = None,
     ) -> str:
         """
         Train the model on the Microsoft Graph tool calling dataset.

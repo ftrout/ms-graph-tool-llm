@@ -3,11 +3,9 @@
 import json
 import os
 import tempfile
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
-import pytest
-
-from msgraph_tool_agent_8b.data.harvester import GraphAPIHarvester, PROMPT_TEMPLATES
+from msgraph_tool_agent_8b.data.harvester import PROMPT_TEMPLATES, GraphAPIHarvester
 
 
 class TestGraphAPIHarvester:
@@ -228,7 +226,7 @@ class TestGraphAPIHarvester:
                 assert os.path.exists(output_path)
 
                 # Verify content
-                with open(output_path, "r") as f:
+                with open(output_path) as f:
                     lines = f.readlines()
                     assert len(lines) == len(PROMPT_TEMPLATES)
 

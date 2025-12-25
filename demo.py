@@ -5,9 +5,10 @@ Run with: python demo.py
 """
 
 import json
+
 import gradio as gr
 
-from msgraph_tool_agent_8b.inference.agent import MSGraphAgent, COMMON_TOOLS
+from msgraph_tool_agent_8b.inference.agent import COMMON_TOOLS, MSGraphAgent
 from msgraph_tool_agent_8b.utils.logging import setup_logging
 
 setup_logging()

@@ -1,15 +1,12 @@
 """Tests for configuration classes."""
 
-import json
 import os
 import tempfile
 
-import pytest
-
 from msgraph_tool_agent_8b.utils.config import (
+    DEFAULT_MODEL_CONFIG,
     ModelConfig,
     TrainingConfig,
-    DEFAULT_MODEL_CONFIG,
 )
 
 

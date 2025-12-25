@@ -7,7 +7,7 @@ for Microsoft Graph API tool calling.
 
 import json
 import os
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import torch
 from peft import PeftModel
@@ -153,12 +153,12 @@ class MSGraphAgent:
     def generate(
         self,
         instruction: str,
-        tool: Optional[Union[Dict[str, Any], str]] = None,
-        tools: Optional[List[Dict[str, Any]]] = None,
+        tool: dict[str, Any] | str | None = None,
+        tools: list[dict[str, Any]] | None = None,
         max_new_tokens: int = 256,
         temperature: float = 0.1,
         return_dict: bool = True,
-    ) -> Union[Dict[str, Any], str]:
+    ) -> dict[str, Any] | str:
         """
         Generate a tool call for the given instruction.
 
@@ -230,9 +230,9 @@ class MSGraphAgent:
     def __call__(
         self,
         instruction: str,
-        tool: Optional[Union[Dict[str, Any], str]] = None,
+        tool: dict[str, Any] | str | None = None,
         **kwargs,
-    ) -> Union[Dict[str, Any], str]:
+    ) -> dict[str, Any] | str:
         """
         Shorthand for generate().
 

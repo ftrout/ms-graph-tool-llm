@@ -9,10 +9,10 @@ import json
 import os
 import time
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    import torch
+    pass
 
 from msgraph_tool_agent_8b.utils.logging import get_logger
 
@@ -47,7 +47,7 @@ class EvaluationMetrics:
     tokens_per_second: float = 0.0
 
     # Error tracking
-    errors: List[Dict[str, Any]] = field(default_factory=list)
+    errors: list[dict[str, Any]] = field(default_factory=list)
 
     def compute_rates(self) -> None:
         """Compute derived metric rates."""
@@ -60,7 +60,7 @@ class EvaluationMetrics:
             if self.total_inference_time > 0:
                 self.avg_inference_time = self.total_inference_time / self.total_samples
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert metrics to dictionary."""
         return {
             "total_samples": self.total_samples,
@@ -122,8 +122,8 @@ class GraphToolEvaluator:
     def __init__(
         self,
         base_model_id: str = "NousResearch/Hermes-3-Llama-3.1-8B",
-        adapter_path: Optional[str] = None,
-        device: Optional[str] = None,
+        adapter_path: str | None = None,
+        device: str | None = None,
     ):
         """
         Initialize the evaluator.
@@ -190,7 +190,7 @@ class GraphToolEvaluator:
         tool_definition: str,
         max_new_tokens: int = 256,
         temperature: float = 0.1,
-    ) -> Tuple[str, float, int]:
+    ) -> tuple[str, float, int]:
         """
         Generate a tool call for the given instruction.
 
@@ -237,7 +237,7 @@ class GraphToolEvaluator:
         return response.strip(), inference_time, num_tokens
 
     @staticmethod
-    def validate_json(text: str) -> Tuple[bool, Optional[Dict[str, Any]]]:
+    def validate_json(text: str) -> tuple[bool, dict[str, Any] | None]:
         """
         Validate that text is valid JSON.
 
@@ -255,8 +255,8 @@ class GraphToolEvaluator:
 
     @staticmethod
     def compare_tool_calls(
-        generated: Dict[str, Any], expected: Dict[str, Any]
-    ) -> Tuple[bool, bool]:
+        generated: dict[str, Any], expected: dict[str, Any]
+    ) -> tuple[bool, bool]:
         """
         Compare generated tool call with expected.
 
@@ -285,7 +285,7 @@ class GraphToolEvaluator:
                 break
             # Type-aware comparison
             if isinstance(exp_args[key], (list, dict)):
-                if type(gen_args[key]) != type(exp_args[key]):
+                if not isinstance(gen_args[key], type(exp_args[key])):
                     args_match = False
                     break
 
@@ -293,7 +293,7 @@ class GraphToolEvaluator:
 
     def evaluate_sample(
         self, instruction: str, tool_definition: str, expected_output: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Evaluate a single sample.
 
@@ -348,8 +348,8 @@ class GraphToolEvaluator:
     def evaluate_dataset(
         self,
         data_file: str,
-        max_samples: Optional[int] = None,
-        save_results: Optional[str] = None,
+        max_samples: int | None = None,
+        save_results: str | None = None,
     ) -> EvaluationMetrics:
         """
         Evaluate the model on a dataset.
@@ -428,7 +428,7 @@ class GraphToolEvaluator:
         logger.info(str(metrics))
         return metrics
 
-    def evaluate_single(self, query: str, tool: Dict[str, Any]) -> None:
+    def evaluate_single(self, query: str, tool: dict[str, Any]) -> None:
         """
         Evaluate a single query interactively.
 
@@ -444,7 +444,7 @@ class GraphToolEvaluator:
 
         print(f"\nQuery: {query}")
         print(f"Tool: {tool['function']['name']}")
-        print(f"\nGenerated Response:")
+        print("\nGenerated Response:")
 
         is_valid, parsed = self.validate_json(response)
         if is_valid:
