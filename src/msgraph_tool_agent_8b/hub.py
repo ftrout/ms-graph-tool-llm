@@ -489,7 +489,7 @@ def upload_to_hub(
     )
 
     logger.info("Successfully uploaded to: %s", url)
-    return url
+    return str(url)
 
 
 def create_dataset_card(
@@ -633,7 +633,7 @@ def upload_dataset_to_hub(
         )
 
     logger.info("Successfully uploaded dataset to: %s", url)
-    return url
+    return str(url)
 
 
 def main() -> None:

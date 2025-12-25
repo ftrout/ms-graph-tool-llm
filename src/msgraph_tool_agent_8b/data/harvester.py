@@ -217,7 +217,10 @@ class GraphAPIHarvester:
         if response.status_code != 200:
             raise Exception(f"Failed to download spec: HTTP {response.status_code}")
 
-        return yaml.safe_load(response.content)
+        result = yaml.safe_load(response.content)
+        if not isinstance(result, dict):
+            raise ValueError("OpenAPI spec must be a YAML/JSON object")
+        return result
 
     def process_spec(self, spec: dict[str, Any]) -> list[dict[str, Any]]:
         """

@@ -339,9 +339,9 @@ class GraphToolEvaluator:
             is_valid, parsed_gen = self.validate_json(generated)
             result["is_valid_json"] = is_valid
 
-            if is_valid:
+            if is_valid and parsed_gen is not None:
                 _, parsed_exp = self.validate_json(expected_output)
-                if parsed_exp:
+                if parsed_exp is not None:
                     name_match, args_match = self.compare_tool_calls(
                         parsed_gen, parsed_exp
                     )
