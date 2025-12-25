@@ -2,6 +2,7 @@
 
 import json
 from dataclasses import dataclass, field
+from typing import Any
 
 
 @dataclass
@@ -38,7 +39,7 @@ class ModelConfig:
     max_seq_length: int = 2048
     attn_implementation: str = "flash_attention_2"
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, Any]:
         """Convert config to dictionary."""
         return {
             "base_model_id": self.base_model_id,
@@ -61,7 +62,7 @@ class ModelConfig:
             json.dump(self.to_dict(), f, indent=2)
 
     @classmethod
-    def from_dict(cls, config_dict: dict) -> "ModelConfig":
+    def from_dict(cls, config_dict: dict[str, Any]) -> "ModelConfig":
         """Create config from dictionary."""
         return cls(**config_dict)
 
@@ -120,7 +121,7 @@ class TrainingConfig:
     # Output
     output_dir: str = "./results"
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, Any]:
         """Convert config to dictionary."""
         return {
             "num_train_epochs": self.num_train_epochs,

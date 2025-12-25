@@ -46,7 +46,7 @@ class MSGraphAgent:
         {"name": "me_sendMail", "arguments": {...}}
     """
 
-    def __init__(self, model: Any, tokenizer: Any, device: str = "cuda"):
+    def __init__(self, model: Any, tokenizer: Any, device: str = "cuda") -> None:
         """
         Initialize the agent.
 

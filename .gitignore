@@ -210,7 +210,6 @@ __marimo__/
 /data/
 /data_graph/
 results/
-msgraph-tool-agent-7b/
 msgraph-tool-agent-8b/
 ms-graph-v1/
 *.safetensors

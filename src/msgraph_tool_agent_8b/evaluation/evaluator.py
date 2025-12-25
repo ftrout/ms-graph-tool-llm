@@ -124,7 +124,7 @@ class GraphToolEvaluator:
         base_model_id: str = "NousResearch/Hermes-3-Llama-3.1-8B",
         adapter_path: str | None = None,
         device: str | None = None,
-    ):
+    ) -> None:
         """
         Initialize the evaluator.
 

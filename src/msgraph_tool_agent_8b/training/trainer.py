@@ -53,7 +53,7 @@ class GraphToolTrainer:
         self,
         model_config: ModelConfig | None = None,
         training_config: TrainingConfig | None = None,
-    ):
+    ) -> None:
         """
         Initialize the trainer.
 
