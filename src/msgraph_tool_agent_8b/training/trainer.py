@@ -14,6 +14,7 @@ from transformers import (
     AutoModelForCausalLM,
     AutoTokenizer,
     BitsAndBytesConfig,
+    EarlyStoppingCallback,
     PreTrainedModel,
     PreTrainedTokenizer,
 )
@@ -260,19 +261,45 @@ class GraphToolTrainer:
             warmup_ratio=self.training_config.warmup_ratio,
             fp16=self.training_config.fp16,
             bf16=self.training_config.bf16,
+            # Evaluation strategy
+            eval_strategy=self.training_config.eval_strategy,
+            eval_steps=self.training_config.eval_steps,
+            # Best model selection
+            load_best_model_at_end=self.training_config.load_best_model_at_end,
+            metric_for_best_model=self.training_config.metric_for_best_model,
+            greater_is_better=self.training_config.greater_is_better,
+            # Logging and saving
             logging_steps=self.training_config.logging_steps,
             save_steps=self.training_config.save_steps,
-            eval_steps=self.training_config.eval_steps,
             save_total_limit=self.training_config.save_total_limit,
+            # Experiment tracking
+            report_to=self.training_config.report_to,
+            run_name=self.training_config.run_name,
+            # Model config
             max_seq_length=self.model_config.max_seq_length,
             packing=False,
-            report_to="none",
             dataset_text_field="text",
             gradient_checkpointing=self.training_config.gradient_checkpointing,
             gradient_checkpointing_kwargs={"use_reentrant": False},
             push_to_hub=push_to_hub,
             hub_model_id=hub_model_id,
+            seed=self.training_config.seed,
         )
+
+        # Setup callbacks
+        callbacks = []
+        if self.training_config.early_stopping:
+            callbacks.append(
+                EarlyStoppingCallback(
+                    early_stopping_patience=self.training_config.early_stopping_patience,
+                    early_stopping_threshold=self.training_config.early_stopping_threshold,
+                )
+            )
+            logger.info(
+                "Early stopping enabled: patience=%d, threshold=%.4f",
+                self.training_config.early_stopping_patience,
+                self.training_config.early_stopping_threshold,
+            )
 
         # Create trainer
         trainer = SFTTrainer(
@@ -283,6 +310,7 @@ class GraphToolTrainer:
             peft_config=peft_config,
             formatting_func=self._format_chat_template,
             args=sft_config,
+            callbacks=callbacks if callbacks else None,
         )
 
         # Log training config
@@ -297,6 +325,9 @@ class GraphToolTrainer:
         logger.info("  Effective batch size: %d", effective_batch_size)
         logger.info("  Learning rate: %.2e", self.training_config.learning_rate)
         logger.info("  LoRA rank: %d", self.model_config.lora_r)
+        logger.info("  Eval strategy: %s", self.training_config.eval_strategy)
+        logger.info("  Load best model: %s", self.training_config.load_best_model_at_end)
+        logger.info("  Report to: %s", self.training_config.report_to)
 
         # Train
         logger.info("Starting training...")
@@ -369,6 +400,33 @@ def main():
         default=32,
         help="LoRA adapter rank"
     )
+    # Early stopping options
+    parser.add_argument(
+        "--no-early-stopping",
+        action="store_true",
+        help="Disable early stopping"
+    )
+    parser.add_argument(
+        "--early-stopping-patience",
+        type=int,
+        default=3,
+        help="Early stopping patience (number of eval steps)"
+    )
+    # Experiment tracking
+    parser.add_argument(
+        "--report-to",
+        type=str,
+        choices=["none", "wandb", "tensorboard", "all"],
+        default="none",
+        help="Experiment tracking: none, wandb, tensorboard, or all"
+    )
+    parser.add_argument(
+        "--run-name",
+        type=str,
+        default=None,
+        help="Name for the training run (for W&B/TensorBoard)"
+    )
+    # Hub options
     parser.add_argument(
         "--push-to-hub",
         action="store_true",
@@ -397,6 +455,10 @@ def main():
         num_train_epochs=args.epochs,
         per_device_train_batch_size=args.batch_size,
         learning_rate=args.learning_rate,
+        early_stopping=not args.no_early_stopping,
+        early_stopping_patience=args.early_stopping_patience,
+        report_to=args.report_to,
+        run_name=args.run_name,
     )
 
     trainer = GraphToolTrainer(

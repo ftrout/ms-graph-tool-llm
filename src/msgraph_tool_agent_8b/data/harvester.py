@@ -22,11 +22,30 @@ DEFAULT_OPENAPI_URL = (
 
 # Prompt templates for generating diverse training samples
 PROMPT_TEMPLATES = [
+    # Direct requests
     "I need to {action}.",
-    "Please help me {action}.",
+    "I want to {action}.",
+    "I'd like to {action}.",
+    # Questions
     "Can you {action}?",
+    "Could you {action}?",
     "How do I {action}?",
+    "How can I {action}?",
+    # Polite requests
+    "Please {action}.",
+    "Please help me {action}.",
+    "Would you please {action}?",
+    # Imperatives
+    "{action}.",
     "{action}",
+    # Task-oriented
+    "Help me {action}.",
+    "Assist me to {action}.",
+    "I'm trying to {action}.",
+    # Contextual
+    "My task is to {action}.",
+    "I have a request: {action}.",
+    "For my project, I need to {action}.",
 ]
 
 # Target API namespaces to include
