@@ -231,7 +231,7 @@ msgraph-tool-agent-8b/
 from msgraph_tool_llm.utils.config import ModelConfig
 
 config = ModelConfig(
-    base_model_id="Qwen/Qwen2.5-7B-Instruct",
+    base_model_id="NousResearch/Hermes-3-Llama-3.1-8B",
     lora_r=32,
     lora_alpha=64,
     lora_dropout=0.05,
