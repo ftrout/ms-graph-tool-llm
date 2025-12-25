@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from msgraph_tool_llm.data.harvester import GraphAPIHarvester, PROMPT_TEMPLATES
+from msgraph_tool_agent_8b.data.harvester import GraphAPIHarvester, PROMPT_TEMPLATES
 
 
 class TestGraphAPIHarvester:

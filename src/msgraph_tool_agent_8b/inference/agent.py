@@ -13,7 +13,7 @@ import torch
 from peft import PeftModel
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-from msgraph_tool_llm.utils.logging import get_logger
+from msgraph_tool_agent_8b.utils.logging import get_logger
 
 logger = get_logger("inference.agent")
 
@@ -343,7 +343,7 @@ def main():
 
     args = parser.parse_args()
 
-    from msgraph_tool_llm.utils.logging import setup_logging
+    from msgraph_tool_agent_8b.utils.logging import setup_logging
     setup_logging()
 
     # Load agent

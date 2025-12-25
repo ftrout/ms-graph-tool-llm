@@ -37,7 +37,7 @@ pip install -e ".[dev]"
 ### Basic Usage
 
 ```python
-from msgraph_tool_llm import MSGraphAgent
+from msgraph_tool_agent_8b import MSGraphAgent
 
 # Load a trained agent
 agent = MSGraphAgent.from_pretrained("./msgraph-tool-agent-8b")
@@ -80,7 +80,7 @@ Downloads the Microsoft Graph OpenAPI specification and generates training data:
 msgraph-harvest --output-dir ./data
 
 # Or using Python
-from msgraph_tool_llm import GraphAPIHarvester
+from msgraph_tool_agent_8b import GraphAPIHarvester
 
 harvester = GraphAPIHarvester()
 harvester.harvest(output_dir="./data")
@@ -101,7 +101,7 @@ msgraph-train \
     --batch-size 4
 
 # Or using Python
-from msgraph_tool_llm import GraphToolTrainer
+from msgraph_tool_agent_8b import GraphToolTrainer
 
 trainer = GraphToolTrainer()
 trainer.train(
@@ -148,7 +148,7 @@ msgraph-upload ./msgraph-tool-agent-8b username/msgraph-tool-agent-8b
 Or programmatically:
 
 ```python
-from msgraph_tool_llm.hub import upload_to_hub
+from msgraph_tool_agent_8b.hub import upload_to_hub
 
 upload_to_hub(
     adapter_path="./msgraph-tool-agent-8b",
@@ -182,7 +182,7 @@ upload_to_hub(
 ```
 msgraph-tool-agent-8b/
 ├── src/
-│   └── msgraph_tool_llm/
+│   └── msgraph_tool_agent_8b/
 │       ├── __init__.py           # Package exports
 │       ├── hub.py                # Hugging Face Hub integration
 │       ├── data/
@@ -228,7 +228,7 @@ msgraph-tool-agent-8b/
 ### Model Configuration
 
 ```python
-from msgraph_tool_llm.utils.config import ModelConfig
+from msgraph_tool_agent_8b.utils.config import ModelConfig
 
 config = ModelConfig(
     base_model_id="NousResearch/Hermes-3-Llama-3.1-8B",
@@ -242,7 +242,7 @@ config = ModelConfig(
 ### Training Configuration
 
 ```python
-from msgraph_tool_llm.utils.config import TrainingConfig
+from msgraph_tool_agent_8b.utils.config import TrainingConfig
 
 config = TrainingConfig(
     num_train_epochs=3,
@@ -286,7 +286,7 @@ pip install -e ".[dev]"
 pytest tests/ -v
 
 # Run with coverage
-pytest tests/ --cov=src/msgraph_tool_llm --cov-report=html
+pytest tests/ --cov=src/msgraph_tool_agent_8b --cov-report=html
 ```
 
 ### Code Style

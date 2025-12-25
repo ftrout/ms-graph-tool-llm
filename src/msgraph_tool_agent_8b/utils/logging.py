@@ -37,7 +37,7 @@ def setup_logging(
         force=True
     )
 
-    return logging.getLogger("msgraph_tool_llm")
+    return logging.getLogger("msgraph_tool_agent_8b")
 
 
 def get_logger(name: str) -> logging.Logger:
@@ -50,4 +50,4 @@ def get_logger(name: str) -> logging.Logger:
     Returns:
         Logger instance
     """
-    return logging.getLogger(f"msgraph_tool_llm.{name}")
+    return logging.getLogger(f"msgraph_tool_agent_8b.{name}")

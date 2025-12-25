@@ -3,7 +3,7 @@
 import json
 import pytest
 
-from msgraph_tool_llm.evaluation.evaluator import (
+from msgraph_tool_agent_8b.evaluation.evaluator import (
     EvaluationMetrics,
     GraphToolEvaluator,
 )

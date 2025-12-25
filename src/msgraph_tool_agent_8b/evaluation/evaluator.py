@@ -14,7 +14,7 @@ from typing import Any, Dict, List, Optional, Tuple, TYPE_CHECKING
 if TYPE_CHECKING:
     import torch
 
-from msgraph_tool_llm.utils.logging import get_logger
+from msgraph_tool_agent_8b.utils.logging import get_logger
 
 logger = get_logger("evaluation.evaluator")
 
@@ -520,7 +520,7 @@ def main():
 
     args = parser.parse_args()
 
-    from msgraph_tool_llm.utils.logging import setup_logging
+    from msgraph_tool_agent_8b.utils.logging import setup_logging
     setup_logging()
 
     evaluator = GraphToolEvaluator(

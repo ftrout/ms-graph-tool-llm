@@ -6,7 +6,7 @@ __all__ = ["GraphToolEvaluator", "EvaluationMetrics"]
 def __getattr__(name: str):
     """Lazy import for torch-dependent modules."""
     if name in ("GraphToolEvaluator", "EvaluationMetrics"):
-        from msgraph_tool_llm.evaluation.evaluator import (
+        from msgraph_tool_agent_8b.evaluation.evaluator import (
             GraphToolEvaluator,
             EvaluationMetrics,
         )
