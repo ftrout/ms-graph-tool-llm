@@ -127,7 +127,7 @@ class MSGraphAgent:
         repo_id: str,
         base_model_id: str = "NousResearch/Hermes-3-Llama-3.1-8B",
         revision: str = "main",
-        **kwargs,
+        **kwargs: Any,
     ) -> "MSGraphAgent":
         """
         Load a trained agent from Hugging Face Hub.
@@ -220,18 +220,19 @@ class MSGraphAgent:
         # Parse if requested
         if return_dict:
             try:
-                return json.loads(response)
+                parsed: dict[str, Any] = json.loads(response)
+                return parsed
             except json.JSONDecodeError:
                 logger.warning("Failed to parse response as JSON, returning raw string")
-                return response
+                return str(response)
 
-        return response
+        return str(response)
 
     def __call__(
         self,
         instruction: str,
         tool: dict[str, Any] | str | None = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> dict[str, Any] | str:
         """
         Shorthand for generate().
