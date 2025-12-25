@@ -207,7 +207,8 @@ marimo/_lsp/
 __marimo__/
 
 # Project-specific
-data/
+/data/
+/data_graph/
 results/
 msgraph-tool-agent-7b/
 msgraph-tool-agent-8b/

@@ -20,7 +20,7 @@ class TestModelConfig:
         """Test that default values are set correctly."""
         config = ModelConfig()
 
-        assert config.base_model_id == "Qwen/Qwen2.5-7B-Instruct"
+        assert config.base_model_id == "NousResearch/Hermes-3-Llama-3.1-8B"
         assert config.load_in_4bit is True
         assert config.bnb_4bit_quant_type == "nf4"
         assert config.lora_r == 32
@@ -47,7 +47,7 @@ class TestModelConfig:
         result = config.to_dict()
 
         assert isinstance(result, dict)
-        assert result["base_model_id"] == "Qwen/Qwen2.5-7B-Instruct"
+        assert result["base_model_id"] == "NousResearch/Hermes-3-Llama-3.1-8B"
         assert result["lora_r"] == 32
         assert "lora_target_modules" in result
 

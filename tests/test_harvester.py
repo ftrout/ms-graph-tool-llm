@@ -16,7 +16,7 @@ class TestGraphAPIHarvester:
     def test_init_default_url(self):
         """Test initialization with default URL."""
         harvester = GraphAPIHarvester()
-        assert "github.com" in harvester.openapi_url
+        assert "githubusercontent.com" in harvester.openapi_url
         assert "msgraph-metadata" in harvester.openapi_url
 
     def test_init_custom_url(self):
