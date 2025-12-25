@@ -276,7 +276,6 @@ class GraphToolTrainer:
             report_to=self.training_config.report_to,
             run_name=self.training_config.run_name,
             # Model config
-            max_seq_length=self.model_config.max_seq_length,
             packing=False,
             dataset_text_field="text",
             gradient_checkpointing=self.training_config.gradient_checkpointing,
@@ -311,6 +310,7 @@ class GraphToolTrainer:
             formatting_func=self._format_chat_template,
             args=sft_config,
             callbacks=callbacks if callbacks else None,
+            max_seq_length=self.model_config.max_seq_length,
         )
 
         # Log training config
