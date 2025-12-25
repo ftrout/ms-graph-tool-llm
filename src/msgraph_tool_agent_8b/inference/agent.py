@@ -70,7 +70,7 @@ class MSGraphAgent:
         cls,
         adapter_path: str,
         base_model_id: str = "NousResearch/Hermes-3-Llama-3.1-8B",
-        load_in_4bit: bool = True,
+        load_in_4bit: bool = False,
         device_map: str = "auto",
         torch_dtype: torch.dtype = torch.bfloat16
     ) -> "MSGraphAgent":
@@ -80,7 +80,8 @@ class MSGraphAgent:
         Args:
             adapter_path: Path to the LoRA adapter directory
             base_model_id: Base model identifier
-            load_in_4bit: Whether to use 4-bit quantization
+            load_in_4bit: Whether to use 4-bit quantization (disabled by default
+                for inference to allow adapter merging)
             device_map: Device mapping strategy
             torch_dtype: Torch data type
 
@@ -98,7 +99,8 @@ class MSGraphAgent:
 
         logger.info("Loading base model: %s", base_model_id)
 
-        # Load base model
+        # Load base model in bfloat16 (not quantized) to allow adapter merging
+        # 4-bit quantized models cannot have adapters merged into them
         model = AutoModelForCausalLM.from_pretrained(
             base_model_id,
             load_in_4bit=load_in_4bit,
@@ -111,8 +113,9 @@ class MSGraphAgent:
         logger.info("Loading adapter from: %s", adapter_path)
         model = PeftModel.from_pretrained(model, adapter_path)
 
-        # Merge adapter to avoid compatibility issues with some transformers versions
-        logger.info("Merging adapter weights...")
+        # Merge LoRA adapter into base model and unload adapter wrapper
+        # This creates a standalone model with fine-tuned weights
+        logger.info("Merging adapter weights into base model...")
         model = model.merge_and_unload()
 
         # Load tokenizer
