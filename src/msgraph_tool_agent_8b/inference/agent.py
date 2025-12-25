@@ -111,6 +111,10 @@ class MSGraphAgent:
         logger.info("Loading adapter from: %s", adapter_path)
         model = PeftModel.from_pretrained(model, adapter_path)
 
+        # Merge adapter to avoid compatibility issues with some transformers versions
+        logger.info("Merging adapter weights...")
+        model = model.merge_and_unload()
+
         # Load tokenizer
         tokenizer = AutoTokenizer.from_pretrained(
             base_model_id,
