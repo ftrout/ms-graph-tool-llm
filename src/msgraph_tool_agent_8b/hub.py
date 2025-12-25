@@ -636,7 +636,7 @@ def upload_dataset_to_hub(
     return url
 
 
-def main():
+def main() -> None:
     """CLI entry point for Hub upload."""
     import argparse
 
@@ -692,7 +692,7 @@ def main():
         raise
 
 
-def dataset_main():
+def dataset_main() -> None:
     """CLI entry point for dataset upload."""
     import argparse
 

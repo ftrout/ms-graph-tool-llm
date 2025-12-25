@@ -23,7 +23,7 @@ def setup_logging(
     if format_string is None:
         format_string = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 
-    handlers = [logging.StreamHandler(sys.stdout)]
+    handlers: list[logging.Handler] = [logging.StreamHandler(sys.stdout)]
 
     if log_file:
         handlers.append(logging.FileHandler(log_file))
