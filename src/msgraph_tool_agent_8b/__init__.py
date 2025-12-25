@@ -5,7 +5,7 @@ A specialized LLM fine-tuning pipeline that trains models to convert natural lan
 into precise, schema-validated JSON tool calls for the Microsoft Graph API.
 
 Example:
-    >>> from msgraph_tool_llm import MSGraphAgent
+    >>> from msgraph_tool_agent_8b import MSGraphAgent
     >>> agent = MSGraphAgent.from_pretrained("ftrout/msgraph-tool-agent-7b")
     >>> result = agent.generate("Send an email to john@contoso.com about the meeting")
     >>> print(result)
@@ -20,16 +20,16 @@ __license__ = "MIT"
 def __getattr__(name: str):
     """Lazy import for optional dependencies."""
     if name == "MSGraphAgent":
-        from msgraph_tool_llm.inference.agent import MSGraphAgent
+        from msgraph_tool_agent_8b.inference.agent import MSGraphAgent
         return MSGraphAgent
     elif name == "GraphAPIHarvester":
-        from msgraph_tool_llm.data.harvester import GraphAPIHarvester
+        from msgraph_tool_agent_8b.data.harvester import GraphAPIHarvester
         return GraphAPIHarvester
     elif name == "GraphToolTrainer":
-        from msgraph_tool_llm.training.trainer import GraphToolTrainer
+        from msgraph_tool_agent_8b.training.trainer import GraphToolTrainer
         return GraphToolTrainer
     elif name == "GraphToolEvaluator":
-        from msgraph_tool_llm.evaluation.evaluator import GraphToolEvaluator
+        from msgraph_tool_agent_8b.evaluation.evaluator import GraphToolEvaluator
         return GraphToolEvaluator
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 

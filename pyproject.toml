@@ -78,14 +78,14 @@ Issues = "https://github.com/ftrout/msgraph-tool-agent-8b/issues"
 Changelog = "https://github.com/ftrout/msgraph-tool-agent-8b/releases"
 
 [project.scripts]
-msgraph-harvest = "msgraph_tool_llm.data.harvester:main"
-msgraph-train = "msgraph_tool_llm.training.trainer:main"
-msgraph-evaluate = "msgraph_tool_llm.evaluation.evaluator:main"
-msgraph-agent = "msgraph_tool_llm.inference.agent:main"
-msgraph-upload = "msgraph_tool_llm.hub:main"
+msgraph-harvest = "msgraph_tool_agent_8b.data.harvester:main"
+msgraph-train = "msgraph_tool_agent_8b.training.trainer:main"
+msgraph-evaluate = "msgraph_tool_agent_8b.evaluation.evaluator:main"
+msgraph-agent = "msgraph_tool_agent_8b.inference.agent:main"
+msgraph-upload = "msgraph_tool_agent_8b.hub:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/msgraph_tool_llm"]
+packages = ["src/msgraph_tool_agent_8b"]
 
 [tool.hatch.build.targets.sdist]
 include = [
@@ -136,7 +136,7 @@ ignore = [
 ]
 
 [tool.ruff.lint.isort]
-known-first-party = ["msgraph_tool_llm"]
+known-first-party = ["msgraph_tool_agent_8b"]
 
 [tool.mypy]
 python_version = "3.10"
@@ -160,7 +160,7 @@ markers = [
 ]
 
 [tool.coverage.run]
-source = ["src/msgraph_tool_llm"]
+source = ["src/msgraph_tool_agent_8b"]
 branch = true
 omit = ["*/tests/*", "*/__init__.py"]
 

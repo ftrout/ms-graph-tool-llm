@@ -9,7 +9,7 @@ from typing import Optional
 
 from huggingface_hub import HfApi, create_repo, upload_folder
 
-from msgraph_tool_llm.utils.logging import get_logger
+from msgraph_tool_agent_8b.utils.logging import get_logger
 
 logger = get_logger("hub")
 
@@ -61,7 +61,7 @@ This model is designed to:
 ### Example Usage
 
 ```python
-from msgraph_tool_llm import MSGraphAgent
+from msgraph_tool_agent_8b import MSGraphAgent
 
 # Load the agent
 agent = MSGraphAgent.from_pretrained("{repo_id}")
@@ -329,7 +329,7 @@ def main():
 
     args = parser.parse_args()
 
-    from msgraph_tool_llm.utils.logging import setup_logging
+    from msgraph_tool_agent_8b.utils.logging import setup_logging
     setup_logging()
 
     try:
