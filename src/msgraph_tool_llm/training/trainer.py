@@ -1,5 +1,5 @@
 """
-Training pipeline for MSGraph Tool LLM.
+Training pipeline for msgraph-tool-agent-8b.
 
 Fine-tunes LLMs using QLoRA for Microsoft Graph API tool calling.
 """

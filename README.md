@@ -1,4 +1,4 @@
-# MSGraph Tool LLM
+# msgraph-tool-agent-8b
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -7,7 +7,7 @@
 
 **Enterprise-Grade Tool-Calling LLM for Microsoft Graph API**
 
-MSGraph Tool LLM is a specialized fine-tuning pipeline that trains language models to convert natural language into precise, schema-validated JSON tool calls for the Microsoft Graph API. Unlike generic chatbots, this model uses **Schema-First Learning** to reliably translate user intent into valid API operations.
+msgraph-tool-agent-8b is a specialized fine-tuning pipeline that trains language models to convert natural language into precise, schema-validated JSON tool calls for the Microsoft Graph API. Unlike generic chatbots, this model uses **Schema-First Learning** to reliably translate user intent into valid API operations.
 
 ## Features
 
@@ -24,8 +24,8 @@ MSGraph Tool LLM is a specialized fine-tuning pipeline that trains language mode
 
 ```bash
 # Clone the repository
-git clone https://github.com/ftrout/ms-graph-tool-llm
-cd ms-graph-tool-llm
+git clone https://github.com/ftrout/msgraph-tool-agent-8b
+cd msgraph-tool-agent-8b
 
 # Install the package
 pip install -e .
@@ -180,7 +180,7 @@ upload_to_hub(
 ## Project Structure
 
 ```
-ms-graph-tool-llm/
+msgraph-tool-agent-8b/
 ├── src/
 │   └── msgraph_tool_llm/
 │       ├── __init__.py           # Package exports
@@ -385,11 +385,11 @@ MIT License - see [LICENSE](LICENSE) for details.
 ## Citation
 
 ```bibtex
-@misc{msgraph-tool-llm,
-  title={MSGraph Tool LLM: Enterprise Tool-Calling Agent for Microsoft Graph},
+@misc{msgraph-tool-agent-8b,
+  title={msgraph-tool-agent-8b: Enterprise Tool-Calling Agent for Microsoft Graph},
   author={ftrout},
   year={2024},
-  url={https://github.com/ftrout/ms-graph-tool-llm}
+  url={https://github.com/ftrout/msgraph-tool-agent-8b}
 }
 ```
 

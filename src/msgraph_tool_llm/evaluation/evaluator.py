@@ -1,5 +1,5 @@
 """
-Comprehensive evaluation framework for MSGraph Tool LLM.
+Comprehensive evaluation framework for msgraph-tool-agent-8b.
 
 Provides metrics for evaluating tool-calling accuracy, JSON validity,
 and schema compliance.
@@ -466,7 +466,7 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Evaluate MSGraph Tool LLM model"
+        description="Evaluate msgraph-tool-agent-8b model"
     )
     parser.add_argument(
         "--base-model",

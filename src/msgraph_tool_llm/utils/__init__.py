@@ -1,4 +1,4 @@
-"""Utility modules for MSGraph Tool LLM."""
+"""Utility modules for msgraph-tool-agent-8b."""
 
 from msgraph_tool_llm.utils.logging import setup_logging, get_logger
 from msgraph_tool_llm.utils.config import ModelConfig, TrainingConfig, DEFAULT_MODEL_CONFIG

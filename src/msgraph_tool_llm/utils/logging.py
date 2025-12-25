@@ -1,4 +1,4 @@
-"""Logging configuration for MSGraph Tool LLM."""
+"""Logging configuration for msgraph-tool-agent-8b."""
 
 import logging
 import sys
@@ -11,7 +11,7 @@ def setup_logging(
     format_string: Optional[str] = None
 ) -> logging.Logger:
     """
-    Configure logging for the MSGraph Tool LLM package.
+    Configure logging for the msgraph-tool-agent-8b package.
 
     Args:
         level: Logging level (default: INFO)

@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "msgraph-tool-llm"
+name = "msgraph-tool-agent-8b"
 version = "1.0.0"
 description = "Enterprise-grade tool-calling LLM for Microsoft Graph API"
 readme = "README.md"
@@ -67,15 +67,15 @@ docs = [
     "myst-parser>=2.0.0",
 ]
 all = [
-    "msgraph-tool-llm[dev,docs]",
+    "msgraph-tool-agent-8b[dev,docs]",
 ]
 
 [project.urls]
-Homepage = "https://github.com/ftrout/ms-graph-tool-llm"
-Documentation = "https://github.com/ftrout/ms-graph-tool-llm#readme"
-Repository = "https://github.com/ftrout/ms-graph-tool-llm.git"
-Issues = "https://github.com/ftrout/ms-graph-tool-llm/issues"
-Changelog = "https://github.com/ftrout/ms-graph-tool-llm/releases"
+Homepage = "https://github.com/ftrout/msgraph-tool-agent-8b"
+Documentation = "https://github.com/ftrout/msgraph-tool-agent-8b#readme"
+Repository = "https://github.com/ftrout/msgraph-tool-agent-8b.git"
+Issues = "https://github.com/ftrout/msgraph-tool-agent-8b/issues"
+Changelog = "https://github.com/ftrout/msgraph-tool-agent-8b/releases"
 
 [project.scripts]
 msgraph-harvest = "msgraph_tool_llm.data.harvester:main"
