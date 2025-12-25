@@ -205,3 +205,12 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Project-specific
+data/
+results/
+msgraph-tool-agent-7b/
+ms-graph-v1/
+*.safetensors
+*.bin
+evaluation_results.json
