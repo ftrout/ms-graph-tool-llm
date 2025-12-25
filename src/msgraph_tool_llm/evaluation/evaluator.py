@@ -123,7 +123,7 @@ class GraphToolEvaluator:
 
     def __init__(
         self,
-        base_model_id: str = "Qwen/Qwen2.5-7B-Instruct",
+        base_model_id: str = "NousResearch/Hermes-3-Llama-3.1-8B",
         adapter_path: Optional[str] = None,
         device: Optional[str] = None
     ):

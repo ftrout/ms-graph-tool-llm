@@ -82,7 +82,7 @@ class TestGraphToolEvaluator:
     def test_init_default_values(self):
         """Test initialization with default values."""
         evaluator = GraphToolEvaluator()
-        assert evaluator.base_model_id == "Qwen/Qwen2.5-7B-Instruct"
+        assert evaluator.base_model_id == "NousResearch/Hermes-3-Llama-3.1-8B"
         assert evaluator.adapter_path is None
         assert evaluator.model is None
 
