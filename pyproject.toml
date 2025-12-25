@@ -53,6 +53,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+demo = [
+    "gradio>=4.0.0",
+]
 dev = [
     "pytest>=7.4.0",
     "pytest-cov>=4.1.0",
@@ -67,7 +70,7 @@ docs = [
     "myst-parser>=2.0.0",
 ]
 all = [
-    "msgraph-tool-agent-8b[dev,docs]",
+    "msgraph-tool-agent-8b[dev,docs,demo]",
 ]
 
 [project.urls]
