@@ -1,8 +1,9 @@
 """
-Microsoft Graph API Data Harvester.
+Microsoft Defender XDR API Data Harvester.
 
-This module downloads the Microsoft Graph OpenAPI specification and generates
-training data for fine-tuning tool-calling language models.
+This module downloads the Microsoft Security Graph API specification and generates
+training data for fine-tuning security-focused tool-calling language models.
+Focused on Defender XDR, Sentinel, and security operations endpoints.
 """
 
 import argparse
@@ -11,62 +12,93 @@ import os
 import re
 from typing import Any
 
-from msgraph_tool_agent_8b.utils.logging import get_logger
+from defender_api_tool.utils.logging import get_logger
 
 logger = get_logger("data.harvester")
 
-# Default OpenAPI spec URL
+# Default OpenAPI spec URL - Microsoft Graph Security API
 DEFAULT_OPENAPI_URL = (
     "https://raw.githubusercontent.com/microsoftgraph/msgraph-metadata"
     "/master/openapi/v1.0/openapi.yaml"
 )
 
-# Prompt templates for generating diverse training samples
+# Security-focused prompt templates for generating diverse training samples
 PROMPT_TEMPLATES = [
-    # Direct requests
+    # Direct security requests
     "I need to {action}.",
     "I want to {action}.",
     "I'd like to {action}.",
-    # Questions
+    # Security analyst questions
     "Can you {action}?",
-    "Could you {action}?",
     "How do I {action}?",
-    "How can I {action}?",
-    # Polite requests
-    "Please {action}.",
-    "Please help me {action}.",
-    "Would you please {action}?",
+    "Help me {action}.",
+    # Incident response
+    "Investigate and {action}.",
+    "For this security incident, {action}.",
+    "Urgently {action}.",
+    # SOC operations
+    "As part of threat hunting, {action}.",
+    "For compliance purposes, {action}.",
+    "During this investigation, {action}.",
     # Imperatives
     "{action}.",
     "{action}",
-    # Task-oriented
-    "Help me {action}.",
-    "Assist me to {action}.",
-    "I'm trying to {action}.",
-    # Contextual
-    "My task is to {action}.",
-    "I have a request: {action}.",
-    "For my project, I need to {action}.",
+    # Alert triage
+    "Triage this alert by {action}.",
+    "Analyze the threat and {action}.",
+    "Check if we need to {action}.",
+    # Contextual security
+    "The SOC team needs to {action}.",
+    "For incident response, {action}.",
 ]
 
-# Target API namespaces to include
+# Microsoft Defender XDR and Security API namespaces
 TARGET_NAMESPACES = [
-    "/me/messages",
-    "/me/events",
-    "/me/drive",
-    "/teams",
-    "/users",
-    "/sites",
-    "/groups",
+    # Defender XDR - Alerts and Incidents
+    "/security/alerts",
+    "/security/alerts_v2",
+    "/security/incidents",
+    # Defender XDR - Threat Intelligence
+    "/security/threatIntelligence",
+    "/security/tiIndicators",
+    # Defender XDR - Hunting
+    "/security/runHuntingQuery",
+    "/security/cases",
+    # Defender for Endpoint
+    "/security/attackSimulation",
+    # Identity Security
+    "/security/identities",
+    "/identity",
+    "/identityProtection",
+    "/riskDetections",
+    # Secure Score
+    "/security/secureScores",
+    "/security/secureScoreControlProfiles",
+    # Audit and Compliance
+    "/auditLogs",
+    "/security/auditLog",
+    # User Risk and Sign-in
+    "/riskyUsers",
+    "/signIns",
+    # eDiscovery and Compliance
+    "/security/cases/ediscoveryCases",
+    # Device Management (Intune Security)
+    "/deviceManagement",
+    # Application Security
     "/applications",
+    "/servicePrincipals",
+    # Conditional Access
+    "/identity/conditionalAccess",
+    # Directory Audit
+    "/directoryAudits",
 ]
 
 # Valid HTTP methods to process
 VALID_METHODS = ["get", "post", "patch", "delete", "put"]
 
 
-class GraphAPIHarvester:
-    """Harvests Microsoft Graph API endpoints and generates training data."""
+class DefenderAPIHarvester:
+    """Harvests Microsoft Defender XDR API endpoints and generates training data."""
 
     def __init__(self, openapi_url: str = DEFAULT_OPENAPI_URL) -> None:
         """
@@ -172,17 +204,33 @@ class GraphAPIHarvester:
 
             # Handle OData parameters specially
             if name == "$filter":
-                args[name] = "startswith(displayName, 'A')"
+                args[name] = "severity eq 'high' and status eq 'new'"
             elif name == "$select":
-                args[name] = "id,displayName,mail"
+                args[name] = "id,title,severity,status,assignedTo"
             elif name == "$top":
-                args[name] = 10
+                args[name] = 50
             elif name == "$orderby":
-                args[name] = "displayName asc"
+                args[name] = "createdDateTime desc"
             elif name == "$expand":
-                args[name] = "members"
+                args[name] = "alerts"
             elif name == "$search":
-                args[name] = '"displayName:John"'
+                args[name] = '"malware OR ransomware"'
+            # Handle security-specific parameters
+            elif name == "alertId":
+                args[name] = "da637551227677560813_-961444813"
+            elif name == "incidentId":
+                args[name] = "924521"
+            elif name == "userId":
+                args[name] = "user@contoso.com"
+            elif name == "hostName":
+                args[name] = "workstation01.contoso.com"
+            elif name == "query":
+                args[name] = (
+                    "DeviceProcessEvents | where FileName == 'powershell.exe' "
+                    "| take 100"
+                )
+            elif name == "timeRange":
+                args[name] = "P7D"
             # Handle by type
             elif param_type == "integer":
                 args[name] = 10
@@ -283,7 +331,7 @@ class GraphAPIHarvester:
     def harvest(
         self,
         output_dir: str = "./data",
-        output_filename: str = "graph_tool_dataset.jsonl",
+        output_filename: str = "defender_tool_dataset.jsonl",
     ) -> str:
         """
         Download spec and generate training dataset.
@@ -314,10 +362,14 @@ class GraphAPIHarvester:
         return output_path
 
 
+# Backward compatibility alias
+GraphAPIHarvester = DefenderAPIHarvester
+
+
 def main() -> None:
     """CLI entry point for the harvester."""
     parser = argparse.ArgumentParser(
-        description="Harvest Microsoft Graph API for LLM training data"
+        description="Harvest Microsoft Defender XDR API for LLM training data"
     )
     parser.add_argument(
         "--output-dir",
@@ -326,7 +378,7 @@ def main() -> None:
     )
     parser.add_argument(
         "--output-file",
-        default="graph_tool_dataset.jsonl",
+        default="defender_tool_dataset.jsonl",
         help="Output filename",
     )
     parser.add_argument(
@@ -346,12 +398,12 @@ def main() -> None:
     # Configure logging
     import logging
 
-    from msgraph_tool_agent_8b.utils.logging import setup_logging
+    from defender_api_tool.utils.logging import setup_logging
 
     setup_logging(level=logging.DEBUG if args.verbose else logging.INFO)
 
     # Run harvester
-    harvester = GraphAPIHarvester(openapi_url=args.openapi_url)
+    harvester = DefenderAPIHarvester(openapi_url=args.openapi_url)
     output_path = harvester.harvest(
         output_dir=args.output_dir,
         output_filename=args.output_file,

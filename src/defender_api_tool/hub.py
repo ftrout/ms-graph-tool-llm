@@ -1,14 +1,14 @@
 """
-Hugging Face Hub integration for msgraph-tool-agent-8b.
+Hugging Face Hub integration for SecurityGraph-Agent.
 
-Provides functionality for uploading trained models and datasets to the Hugging Face Hub.
+Provides functionality for uploading trained security models and datasets to the Hugging Face Hub.
 """
 
 import os
 
 from huggingface_hub import create_repo, upload_file, upload_folder
 
-from msgraph_tool_agent_8b.utils.logging import get_logger
+from defender_api_tool.utils.logging import get_logger
 
 logger = get_logger("hub")
 
@@ -21,11 +21,17 @@ library_name: peft
 base_model: {base_model}
 tags:
 - tool-calling
-- microsoft-graph
+- microsoft-defender
+- defender-xdr
+- security
+- soc
 - function-calling
 - api-agent
 - qlora
 - lora
+- cybersecurity
+- threat-detection
+- incident-response
 pipeline_tag: text-generation
 datasets:
 - custom
@@ -34,10 +40,10 @@ model-index:
   results:
   - task:
       type: text-generation
-      name: Tool Calling
+      name: Security Tool Calling
     dataset:
       type: custom
-      name: Microsoft Graph Tool-Calling Dataset
+      name: Microsoft Defender XDR Tool-Calling Dataset
     metrics:
     - type: accuracy
       name: JSON Validity Rate
@@ -52,18 +58,20 @@ model-index:
 
 # {model_name}
 
-A specialized tool-calling language model fine-tuned for Microsoft Graph API operations.
+A specialized security tool-calling language model fine-tuned for Microsoft Defender XDR API operations.
 
 ## Model Description
 
 This model is a LoRA (Low-Rank Adaptation) adapter fine-tuned on top of [{base_model}](https://huggingface.co/{base_model})
-for generating precise JSON tool calls for the Microsoft Graph API.
+for generating precise JSON tool calls for the Microsoft Defender XDR API. Designed for Security Operations Centers (SOC)
+and incident response workflows.
 
 ### Key Features
 
-- **Schema-First Training**: Trained on the official Microsoft Graph OpenAPI specification
+- **Security-First Design**: Trained on Microsoft Defender XDR and Security Graph API endpoints
+- **SOC Operations**: Optimized for alert triage, incident response, and threat hunting
 - **Strict JSON Output**: Generates valid, schema-compliant JSON tool calls
-- **Enterprise-Ready**: Designed for integration with Microsoft 365 applications
+- **Enterprise-Ready**: Designed for integration with Microsoft security products
 - **Efficient**: Uses QLoRA (4-bit quantization + LoRA) for memory efficiency
 
 ## Evaluation Results
@@ -77,35 +85,45 @@ for generating precise JSON tool calls for the Microsoft Graph API.
 ## Intended Uses
 
 This model is designed to:
-- Convert natural language requests into Microsoft Graph API tool calls
-- Generate properly formatted JSON payloads for Graph API endpoints
-- Assist in building AI agents for Microsoft 365 automation
+- Convert natural language security requests into Defender XDR API tool calls
+- Assist SOC analysts with alert triage and incident response
+- Enable threat hunting through natural language queries
+- Generate properly formatted JSON payloads for security operations
+
+### Supported Security Operations
+
+- **Alert Management**: List, get, update security alerts
+- **Incident Response**: Manage and investigate security incidents
+- **Threat Hunting**: Run advanced hunting queries with KQL
+- **Identity Protection**: Monitor risky users and sign-in events
+- **Security Posture**: Check secure scores and compliance
 
 ### Out-of-Scope Uses
 
 - General conversation or chat
-- APIs other than Microsoft Graph
+- APIs other than Microsoft Defender XDR / Security Graph
 - Executing API calls without human validation in production
+- Automated security responses without human oversight
 
 ### Example Usage
 
 ```python
-from msgraph_tool_agent_8b import MSGraphAgent
+from defender_api_tool import DefenderApiAgent
 
 # Load the agent
-agent = MSGraphAgent.from_pretrained("{repo_id}")
+agent = DefenderApiAgent.from_pretrained("{repo_id}")
 
-# Define a tool
-email_tool = {{
+# Define a security tool
+alert_tool = {{
     "type": "function",
     "function": {{
-        "name": "me_sendMail",
-        "description": "Send a new message.",
+        "name": "security_alerts_list",
+        "description": "List security alerts from Microsoft Defender XDR.",
         "parameters": {{
             "type": "object",
             "properties": {{
-                "subject": {{"type": "string"}},
-                "toRecipients": {{"type": "array"}}
+                "$filter": {{"type": "string", "description": "OData filter"}},
+                "$top": {{"type": "integer", "description": "Number of results"}}
             }}
         }}
     }}
@@ -113,11 +131,11 @@ email_tool = {{
 
 # Generate tool call
 result = agent.generate(
-    "Send an email to john@example.com about the project update",
-    tool=email_tool
+    "Get all high severity security alerts from the last 24 hours",
+    tool=alert_tool
 )
 print(result)
-# {{"name": "me_sendMail", "arguments": {{"subject": "Project Update", "toRecipients": [...]}}}}
+# {{"name": "security_alerts_list", "arguments": {{"$filter": "severity eq 'high'", "$top": 50}}}}
 ```
 
 ### Direct Usage with Transformers
@@ -141,8 +159,8 @@ tokenizer = AutoTokenizer.from_pretrained("{base_model}")
 
 # Generate
 messages = [
-    {{"role": "system", "content": "You are an AI Agent for Microsoft Graph. Generate JSON tool calls."}},
-    {{"role": "user", "content": "User Request: List all users\\nAvailable Tool: {{...}}"}}
+    {{"role": "system", "content": "You are a Security Operations AI Agent for Microsoft Defender XDR. Generate JSON tool calls."}},
+    {{"role": "user", "content": "User Request: Get high severity alerts\\nAvailable Tool: {{...}}"}}
 ]
 prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
 inputs = tokenizer(prompt, return_tensors="pt").to("cuda")
@@ -156,12 +174,14 @@ print(tokenizer.decode(outputs[0], skip_special_tokens=True))
 
 ### Training Data
 
-The model was trained on synthetic data generated from the official Microsoft Graph OpenAPI specification.
-The training set includes:
-- User management endpoints
-- Mail and calendar operations
-- Drive and file operations
-- Group and team management
+The model was trained on synthetic data generated from the official Microsoft Graph Security API specification.
+The training set includes security-focused endpoints:
+- Security alerts and incidents
+- Threat intelligence indicators
+- Advanced hunting queries
+- Identity protection and risky users
+- Secure scores and compliance
+- Audit logs and sign-in events
 
 ### Training Hyperparameters
 
@@ -187,10 +207,11 @@ The training set includes:
 
 ## Limitations
 
-- The model is specialized for Microsoft Graph API and may not generalize to other APIs
+- The model is specialized for Microsoft Defender XDR API and may not generalize to other APIs
 - Always validate generated tool calls before execution
-- Not suitable for conversational use outside of tool calling context
+- Not suitable for conversational use outside of security tool calling context
 - Requires the correct tool definition to be provided in the prompt
+- Should not be used for automated security responses without human oversight
 
 ## Risks and Mitigations
 
@@ -198,23 +219,29 @@ The training set includes:
 |------|------------|
 | Incorrect API calls | Always validate outputs before execution |
 | Unauthorized access | Implement proper OAuth scopes and permissions |
-| Data leakage | Do not include sensitive data in prompts |
+| Data leakage | Do not include sensitive security data in prompts |
+| False positives/negatives | Human review required for all security actions |
 
 ## Ethical Considerations
 
-- This model should be used responsibly for authorized API access only
+- This model should be used responsibly for authorized security operations only
 - Generated API calls should be validated before execution
 - Users are responsible for proper authentication and authorization
 - The model does not execute API calls - it only generates JSON payloads
+- Always maintain human oversight for security-critical operations
+
+## Related Projects
+
+- [kodiak-secops-1](https://github.com/ftrout/kodiak-secops-1) - SOC alert triage model
 
 ## Citation
 
 ```bibtex
-@misc{{msgraph-tool-agent-8b,
-  title={{msgraph-tool-agent-8b: Enterprise Tool-Calling Agent for Microsoft Graph}},
+@misc{{securitygraph-agent,
+  title={{SecurityGraph-Agent: Enterprise Security Tool-Calling Agent for Microsoft Security Graph}},
   author={{ftrout}},
   year={{2025}},
-  url={{https://github.com/ftrout/msgraph-tool-agent-8b}}
+  url={{https://github.com/ftrout/securitygraph-agent}}
 }}
 ```
 
@@ -232,41 +259,46 @@ task_categories:
 - text-generation
 tags:
 - tool-calling
-- microsoft-graph
+- microsoft-defender
+- defender-xdr
+- security
+- soc
 - function-calling
 - api-agent
 - synthetic
+- cybersecurity
 size_categories:
 - 1K<n<10K
 ---
 
 # {dataset_name}
 
-A synthetic dataset for training tool-calling language models on Microsoft Graph API operations.
+A synthetic dataset for training security tool-calling language models on Microsoft Defender XDR API operations.
 
 ## Dataset Description
 
-This dataset contains instruction-tool-output triplets generated from the official Microsoft Graph OpenAPI specification.
-Each example pairs a natural language request with the corresponding JSON tool call.
+This dataset contains instruction-tool-output triplets generated from the official Microsoft Graph Security API specification.
+Each example pairs a natural language security request with the corresponding JSON tool call.
 
 ### Dataset Summary
 
-- **Source**: Microsoft Graph OpenAPI v1.0 specification
+- **Source**: Microsoft Graph Security API / Defender XDR specification
 - **Format**: JSONL with instruction/input/output fields
 - **Size**: ~{num_samples} examples
 - **Language**: English
+- **Domain**: Security Operations, Incident Response, Threat Hunting
 
 ### Supported Tasks
 
-- **Tool Calling**: Training models to generate structured JSON tool calls
-- **Function Calling**: Fine-tuning LLMs for API interaction
-- **Agent Training**: Building Microsoft 365 automation agents
+- **Security Tool Calling**: Training models to generate structured JSON tool calls for security operations
+- **SOC Automation**: Fine-tuning LLMs for security analyst workflows
+- **Agent Training**: Building security automation agents for Defender XDR
 
 ## Dataset Structure
 
 ### Data Fields
 
-- `instruction`: Natural language user request (e.g., "Send an email to john@example.com")
+- `instruction`: Natural language security request (e.g., "Get all high severity alerts")
 - `input`: JSON tool definition with function name, description, and parameters
 - `output`: Expected JSON tool call with name and arguments
 
@@ -274,9 +306,9 @@ Each example pairs a natural language request with the corresponding JSON tool c
 
 ```json
 {{
-  "instruction": "I need to list all users.",
-  "input": "{{\\"type\\": \\"function\\", \\"function\\": {{\\"name\\": \\"users_ListUser\\", \\"description\\": \\"List users\\", \\"parameters\\": {{...}}}}}}",
-  "output": "{{\\"name\\": \\"users_ListUser\\", \\"arguments\\": {{}}}}"
+  "instruction": "Get all high severity security alerts from the last 24 hours.",
+  "input": "{{\\"type\\": \\"function\\", \\"function\\": {{\\"name\\": \\"security_alerts_list\\", \\"description\\": \\"List security alerts\\", \\"parameters\\": {{...}}}}}}",
+  "output": "{{\\"name\\": \\"security_alerts_list\\", \\"arguments\\": {{\\"$filter\\": \\"severity eq 'high'\\"}}}}"
 }}
 ```
 
@@ -284,24 +316,24 @@ Each example pairs a natural language request with the corresponding JSON tool c
 
 ### Source Data
 
-Generated from the [Microsoft Graph OpenAPI specification](https://github.com/microsoftgraph/msgraph-metadata).
+Generated from the [Microsoft Graph Security API specification](https://github.com/microsoftgraph/msgraph-metadata).
 
-### API Categories Covered
+### Security API Categories Covered
 
-- `/me/messages` - Email operations
-- `/me/events` - Calendar operations
-- `/me/drive` - OneDrive file operations
-- `/users` - User management
-- `/groups` - Group management
-- `/teams` - Teams operations
-- `/sites` - SharePoint operations
-- `/applications` - App registrations
+- `/security/alerts` - Security alert management
+- `/security/incidents` - Incident response
+- `/security/runHuntingQuery` - Advanced threat hunting
+- `/security/secureScores` - Security posture
+- `/riskyUsers` - Identity protection
+- `/signIns` - Authentication monitoring
+- `/security/tiIndicators` - Threat intelligence
+- `/auditLogs` - Compliance and audit
 
 ### Generation Process
 
-1. Download Microsoft Graph OpenAPI YAML specification
-2. Parse endpoints and extract operation metadata
-3. Generate diverse natural language prompts using templates
+1. Download Microsoft Graph Security OpenAPI YAML specification
+2. Filter to security-focused endpoints
+3. Generate diverse security analyst prompts using templates
 4. Create JSON tool definitions and expected outputs
 5. Export as JSONL format
 
@@ -315,40 +347,45 @@ from datasets import load_dataset
 dataset = load_dataset("{repo_id}")
 ```
 
-### Training with msgraph-tool-agent-8b
+### Training with SecurityGraph-Agent
 
 ```bash
-pip install msgraph-tool-agent-8b
+pip install securitygraph-agent
 
 # Download and generate fresh data
-msgraph-harvest --output-dir ./data
+secgraph-harvest --output-dir ./data
 
 # Train a model
-msgraph-train --data-file ./data/graph_tool_dataset.jsonl
+secgraph-train --data-file ./data/defender_tool_dataset.jsonl
 ```
 
 ## Considerations
 
 ### Biases
 
-- Dataset reflects the structure of Microsoft Graph API
-- Synthetic prompts may not capture all real-world phrasings
-- OData query examples use placeholder values
+- Dataset reflects the structure of Microsoft Defender XDR API
+- Synthetic prompts may not capture all real-world security phrasings
+- Security-specific terminology may vary by organization
 
 ### Limitations
 
 - Does not include authentication/authorization examples
 - Request body schemas are simplified
 - Some complex nested parameters are flattened
+- Does not include actual security data or indicators
+
+## Related Projects
+
+- [kodiak-secops-1](https://github.com/ftrout/kodiak-secops-1) - SOC alert triage model
 
 ## Citation
 
 ```bibtex
-@misc{{msgraph-tool-dataset,
-  title={{Microsoft Graph Tool-Calling Dataset}},
+@misc{{securitygraph-dataset,
+  title={{Microsoft Security Graph Tool-Calling Dataset}},
   author={{ftrout}},
   year={{2025}},
-  url={{https://github.com/ftrout/msgraph-tool-agent-8b}}
+  url={{https://github.com/ftrout/securitygraph-agent}}
 }}
 ```
 
@@ -431,7 +468,7 @@ def upload_to_hub(
     repo_id: str,
     base_model: str = "NousResearch/Hermes-3-Llama-3.1-8B",
     private: bool = False,
-    commit_message: str = "Upload msgraph-tool-agent-8b adapter",
+    commit_message: str = "Upload securitygraph-agent adapter",
     create_model_card_file: bool = True,
 ) -> str:
     """
@@ -523,7 +560,7 @@ def upload_dataset_to_hub(
     dataset_path: str,
     repo_id: str,
     private: bool = False,
-    commit_message: str = "Upload msgraph-tool-agent-8b training dataset",
+    commit_message: str = "Upload securitygraph-agent training dataset",
     create_dataset_card_file: bool = True,
 ) -> str:
     """
@@ -641,7 +678,7 @@ def main() -> None:
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Upload trained msgraph-tool-agent-8b to Hugging Face Hub"
+        description="Upload trained SecurityGraph-Agent to Hugging Face Hub"
     )
     parser.add_argument(
         "adapter_path", type=str, help="Path to the trained adapter directory"
@@ -663,7 +700,7 @@ def main() -> None:
     parser.add_argument(
         "--commit-message",
         type=str,
-        default="Upload msgraph-tool-agent-8b adapter",
+        default="Upload securitygraph-agent adapter",
         help="Commit message for the upload",
     )
     parser.add_argument(
@@ -672,7 +709,7 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    from msgraph_tool_agent_8b.utils.logging import setup_logging
+    from defender_api_tool.utils.logging import setup_logging
 
     setup_logging()
 
@@ -697,7 +734,7 @@ def dataset_main() -> None:
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Upload msgraph-tool-agent-8b dataset to Hugging Face Hub"
+        description="Upload SecurityGraph-Agent dataset to Hugging Face Hub"
     )
     parser.add_argument(
         "dataset_path", type=str, help="Path to the dataset file (JSONL) or directory"
@@ -713,7 +750,7 @@ def dataset_main() -> None:
     parser.add_argument(
         "--commit-message",
         type=str,
-        default="Upload msgraph-tool-agent-8b training dataset",
+        default="Upload securitygraph-agent training dataset",
         help="Commit message for the upload",
     )
     parser.add_argument(
@@ -722,7 +759,7 @@ def dataset_main() -> None:
 
     args = parser.parse_args()
 
-    from msgraph_tool_agent_8b.utils.logging import setup_logging
+    from defender_api_tool.utils.logging import setup_logging
 
     setup_logging()
 

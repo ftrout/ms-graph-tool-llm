@@ -1,6 +1,6 @@
-# Contributing to msgraph-tool-agent-8b
+# Contributing to SecurityGraph-Agent
 
-Thank you for your interest in contributing to msgraph-tool-agent-8b! This document provides guidelines and information for contributors.
+Thank you for your interest in contributing to SecurityGraph-Agent! This document provides guidelines and information for contributors.
 
 ## Getting Started
 
@@ -9,8 +9,8 @@ Thank you for your interest in contributing to msgraph-tool-agent-8b! This docum
 1. **Fork and clone the repository**
 
    ```bash
-   git clone https://github.com/YOUR_USERNAME/msgraph-tool-agent-8b
-   cd msgraph-tool-agent-8b
+   git clone https://github.com/YOUR_USERNAME/securitygraph-agent
+   cd securitygraph-agent
    ```
 
 2. **Set up the development environment**
@@ -66,7 +66,7 @@ mypy src/
 pytest tests/ -v
 
 # Run with coverage
-pytest tests/ --cov=src/msgraph_tool_agent_8b --cov-report=html
+pytest tests/ --cov=src/defender_api_tool --cov-report=html
 
 # Run specific test file
 pytest tests/test_harvester.py -v
@@ -86,7 +86,7 @@ pre-commit run --all-files
 
 Use descriptive branch names:
 
-- `feature/add-new-tool-support`
+- `feature/add-new-security-tool`
 - `fix/json-parsing-error`
 - `docs/update-readme`
 - `refactor/improve-training-loop`
@@ -103,7 +103,7 @@ Example:
 ```
 Add support for batch inference
 
-- Implement batch processing in MSGraphAgent.generate()
+- Implement batch processing in DefenderApiAgent.generate()
 - Add max_batch_size parameter
 - Update documentation with batch usage examples
 ```
@@ -128,15 +128,15 @@ Look for issues labeled `good first issue` for beginner-friendly tasks.
 
 ### High-Impact Areas
 
-- **New API Coverage**: Add support for more Microsoft Graph endpoints
-- **Improved Prompts**: Better prompt templates for training data generation
-- **Evaluation Metrics**: Additional metrics for model evaluation
+- **New Security API Coverage**: Add support for more Defender XDR endpoints
+- **Improved Prompts**: Better security-focused prompt templates
+- **Evaluation Metrics**: Additional metrics for security model evaluation
 - **Documentation**: Improve examples and tutorials
 - **Testing**: Increase test coverage
 
-### Adding New Tools
+### Adding New Security Tools
 
-When adding new Microsoft Graph API tools:
+When adding new Microsoft Defender XDR API tools:
 
 1. Add the endpoint to `TARGET_NAMESPACES` in `harvester.py` if needed
 2. Create example tool definitions in `agent.py` under `COMMON_TOOLS`
@@ -165,7 +165,7 @@ Include:
 
 Include:
 - Clear description of the feature
-- Use case / motivation
+- Security use case / motivation
 - Example API or usage pattern
 - Any implementation ideas
 

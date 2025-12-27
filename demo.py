@@ -1,8 +1,8 @@
 """
-Gradio demo for MSGraph Tool Agent.
+Gradio demo for SecurityGraph-Agent.
 
 Run with:
-    python demo.py                              # Load from local ./msgraph-tool-agent-8b
+    python demo.py                              # Load from local ./securitygraph-agent
     python demo.py --adapter-path ./my-adapter  # Load from custom local path
     python demo.py --from-hub username/model    # Load from Hugging Face Hub
     python demo.py --share                      # Create public share link
@@ -17,37 +17,39 @@ import sys
 try:
     import gradio as gr
 except ImportError:
-    print("Gradio is not installed. Install with: pip install 'msgraph-tool-agent-8b[demo]'")
+    print("Gradio is not installed. Install with: pip install 'securitygraph-agent[demo]'")
     sys.exit(1)
 
-from msgraph_tool_agent_8b.inference.agent import COMMON_TOOLS, MSGraphAgent
-from msgraph_tool_agent_8b.utils.logging import setup_logging
+from defender_api_tool.inference.agent import COMMON_TOOLS, DefenderApiAgent
+from defender_api_tool.utils.logging import setup_logging
 
 # Global agent instance
-agent: MSGraphAgent | None = None
+agent: DefenderApiAgent | None = None
 
 
-def load_agent(adapter_path: str | None = None, from_hub: str | None = None) -> MSGraphAgent:
-    """Load the MSGraph agent from local path or Hugging Face Hub."""
+def load_agent(
+    adapter_path: str | None = None, from_hub: str | None = None
+) -> DefenderApiAgent:
+    """Load the Defender API agent from local path or Hugging Face Hub."""
     setup_logging()
 
     if from_hub:
         print(f"Loading model from Hugging Face Hub: {from_hub}")
-        return MSGraphAgent.from_hub(from_hub)
+        return DefenderApiAgent.from_hub(from_hub)
     elif adapter_path:
         if not os.path.exists(adapter_path):
             raise FileNotFoundError(
                 f"Adapter not found at '{adapter_path}'. "
-                "Train a model first with 'msgraph-train' or specify --from-hub to load from Hub."
+                "Train a model first with 'secgraph-train' or specify --from-hub to load from Hub."
             )
         print(f"Loading model from: {adapter_path}")
-        return MSGraphAgent.from_pretrained(adapter_path)
+        return DefenderApiAgent.from_pretrained(adapter_path)
     else:
         # Default local path
-        default_path = "./msgraph-tool-agent-8b"
+        default_path = "./securitygraph-agent"
         if os.path.exists(default_path):
             print(f"Loading model from: {default_path}")
-            return MSGraphAgent.from_pretrained(default_path)
+            return DefenderApiAgent.from_pretrained(default_path)
         else:
             raise FileNotFoundError(
                 f"No adapter found at default path '{default_path}'. "
@@ -63,7 +65,7 @@ def generate_tool_call(instruction: str, tool_type: str) -> str:
         return "Error: Model not loaded. Please restart the demo."
 
     if not instruction.strip():
-        return "Please enter an instruction."
+        return "Please enter a security-related instruction."
 
     tool = COMMON_TOOLS.get(tool_type)
     if not tool:
@@ -78,14 +80,20 @@ def generate_tool_call(instruction: str, tool_type: str) -> str:
         return f"Error: {e}"
 
 
-# Example prompts for each tool
+# Security-focused example prompts for each tool
 EXAMPLES = [
-    ["Send an email to john@contoso.com about the quarterly report", "send_mail"],
-    ["Find all users in the marketing department", "list_users"],
-    ["Show me my calendar events for next week", "list_events"],
-    ["List all files in my OneDrive root folder", "get_drive_items"],
-    ["Email the team about tomorrow's standup meeting", "send_mail"],
-    ["Get the top 10 users sorted by display name", "list_users"],
+    ["Get all high severity security alerts from the last 24 hours", "list_alerts"],
+    ["Show me the details of alert ID da637551227677560813_-961444813", "get_alert"],
+    ["Assign alert to analyst@contoso.com and mark as in progress", "update_alert"],
+    ["List all active security incidents", "list_incidents"],
+    [
+        "Run a hunting query for PowerShell execution events in the last 7 days",
+        "run_hunting_query",
+    ],
+    ["Get the organization's current security score", "list_secure_scores"],
+    ["List all risky users flagged by Identity Protection", "list_risky_users"],
+    ["Show failed sign-in attempts from the last hour", "list_sign_ins"],
+    ["Get threat intelligence indicators for known malware", "list_ti_indicators"],
 ]
 
 
@@ -95,30 +103,31 @@ def create_demo() -> gr.Interface:
         fn=generate_tool_call,
         inputs=[
             gr.Textbox(
-                label="Instruction",
-                placeholder="Enter a natural language request...",
+                label="Security Request",
+                placeholder="Enter a security operations request in natural language...",
                 lines=2,
             ),
             gr.Dropdown(
                 choices=list(COMMON_TOOLS.keys()),
-                value="send_mail",
-                label="Tool Type",
+                value="list_alerts",
+                label="Security Tool",
             ),
         ],
         outputs=gr.Code(label="Generated Tool Call", language="json"),
-        title="MSGraph Tool Agent Demo",
+        title="SecurityGraph-Agent Demo",
         description=(
-            "Convert natural language requests into Microsoft Graph API tool calls. "
-            "Select a tool type and enter your request in plain English."
+            "Convert natural language security requests into Microsoft Security Graph API tool calls. "
+            "Select a security tool and enter your request in plain English."
         ),
         examples=EXAMPLES,
         theme=gr.themes.Soft(),
         article=(
             "### About\n"
-            "This demo uses a fine-tuned language model to generate JSON tool calls "
-            "for the Microsoft Graph API. The model was trained using QLoRA on the "
-            "Hermes 3 Llama 3.1 8B base model.\n\n"
-            "**Note**: Generated tool calls should always be validated before execution."
+            "This demo uses SecurityGraph-Agent, a fine-tuned language model to generate JSON tool calls "
+            "for the Microsoft Security Graph API. The model was trained using QLoRA on the "
+            "Hermes 3 Llama 3.1 8B base model, specialized for security operations.\n\n"
+            "**Use Cases**: Alert triage, incident response, threat hunting, security posture assessment.\n\n"
+            "**Note**: Generated tool calls should always be validated before execution in production."
         ),
     )
 
@@ -128,13 +137,13 @@ def main() -> None:
     global agent
 
     parser = argparse.ArgumentParser(
-        description="Launch the MSGraph Tool Agent Gradio demo",
+        description="Launch the SecurityGraph-Agent Gradio demo",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python demo.py                              # Load from ./msgraph-tool-agent-8b
+  python demo.py                              # Load from ./securitygraph-agent
   python demo.py --adapter-path ./my-model    # Load from custom path
-  python demo.py --from-hub ftrout/msgraph-tool-agent-8b  # Load from Hub
+  python demo.py --from-hub ftrout/securitygraph-agent  # Load from Hub
   python demo.py --share                      # Create public share link
         """,
     )

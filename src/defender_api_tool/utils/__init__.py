@@ -1,11 +1,11 @@
-"""Utility modules for msgraph-tool-agent-8b."""
+"""Utility modules for defender-api-tool."""
 
-from msgraph_tool_agent_8b.utils.config import (
+from defender_api_tool.utils.config import (
     DEFAULT_MODEL_CONFIG,
     ModelConfig,
     TrainingConfig,
 )
-from msgraph_tool_agent_8b.utils.logging import get_logger, setup_logging
+from defender_api_tool.utils.logging import get_logger, setup_logging
 
 __all__ = [
     "setup_logging",

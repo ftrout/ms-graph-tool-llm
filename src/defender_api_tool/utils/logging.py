@@ -1,4 +1,4 @@
-"""Logging configuration for msgraph-tool-agent-8b."""
+"""Logging configuration for defender-api-tool."""
 
 import logging
 import sys
@@ -10,7 +10,7 @@ def setup_logging(
     format_string: str | None = None,
 ) -> logging.Logger:
     """
-    Configure logging for the msgraph-tool-agent-8b package.
+    Configure logging for the defender-api-tool package.
 
     Args:
         level: Logging level (default: INFO)
@@ -36,7 +36,7 @@ def setup_logging(
         force=True,
     )
 
-    return logging.getLogger("msgraph_tool_agent_8b")
+    return logging.getLogger("defender_api_tool")
 
 
 def get_logger(name: str) -> logging.Logger:
@@ -49,4 +49,4 @@ def get_logger(name: str) -> logging.Logger:
     Returns:
         Logger instance
     """
-    return logging.getLogger(f"msgraph_tool_agent_8b.{name}")
+    return logging.getLogger(f"defender_api_tool.{name}")

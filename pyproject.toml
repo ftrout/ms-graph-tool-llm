@@ -3,9 +3,9 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "msgraph-tool-agent-8b"
+name = "securitygraph-agent"
 version = "1.0.0"
-description = "Enterprise-grade tool-calling LLM for Microsoft Graph API"
+description = "Enterprise-grade security tool-calling LLM for Microsoft Security Graph API"
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
@@ -16,18 +16,26 @@ maintainers = [
 ]
 keywords = [
     "llm",
-    "microsoft-graph",
+    "microsoft-defender",
+    "defender-xdr",
+    "security-graph",
+    "security",
+    "soc",
     "tool-calling",
     "fine-tuning",
     "qlora",
     "transformers",
     "peft",
-    "huggingface"
+    "huggingface",
+    "cybersecurity",
+    "threat-detection",
+    "incident-response"
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
+    "Intended Audience :: Information Technology",
     "License :: OSI Approved :: MIT License",
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python :: 3",
@@ -35,6 +43,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Security",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 requires-python = ">=3.10"
@@ -70,26 +79,26 @@ docs = [
     "myst-parser>=2.0.0",
 ]
 all = [
-    "msgraph-tool-agent-8b[dev,docs,demo]",
+    "securitygraph-agent[dev,docs,demo]",
 ]
 
 [project.urls]
-Homepage = "https://github.com/ftrout/msgraph-tool-agent-8b"
-Documentation = "https://github.com/ftrout/msgraph-tool-agent-8b#readme"
-Repository = "https://github.com/ftrout/msgraph-tool-agent-8b.git"
-Issues = "https://github.com/ftrout/msgraph-tool-agent-8b/issues"
-Changelog = "https://github.com/ftrout/msgraph-tool-agent-8b/releases"
+Homepage = "https://github.com/ftrout/securitygraph-agent"
+Documentation = "https://github.com/ftrout/securitygraph-agent#readme"
+Repository = "https://github.com/ftrout/securitygraph-agent.git"
+Issues = "https://github.com/ftrout/securitygraph-agent/issues"
+Changelog = "https://github.com/ftrout/securitygraph-agent/releases"
 
 [project.scripts]
-msgraph-harvest = "msgraph_tool_agent_8b.data.harvester:main"
-msgraph-train = "msgraph_tool_agent_8b.training.trainer:main"
-msgraph-evaluate = "msgraph_tool_agent_8b.evaluation.evaluator:main"
-msgraph-agent = "msgraph_tool_agent_8b.inference.agent:main"
-msgraph-upload = "msgraph_tool_agent_8b.hub:main"
-msgraph-upload-dataset = "msgraph_tool_agent_8b.hub:dataset_main"
+secgraph-harvest = "defender_api_tool.data.harvester:main"
+secgraph-train = "defender_api_tool.training.trainer:main"
+secgraph-evaluate = "defender_api_tool.evaluation.evaluator:main"
+secgraph-agent = "defender_api_tool.inference.agent:main"
+secgraph-upload = "defender_api_tool.hub:main"
+secgraph-upload-dataset = "defender_api_tool.hub:dataset_main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/msgraph_tool_agent_8b"]
+packages = ["src/defender_api_tool"]
 
 [tool.hatch.build.targets.sdist]
 include = [
@@ -98,6 +107,8 @@ include = [
     "/README.md",
     "/LICENSE",
     "/pyproject.toml",
+    "/MODEL_CARD.md",
+    "/DATASET_CARD.md",
 ]
 
 [tool.black]
@@ -140,7 +151,7 @@ ignore = [
 ]
 
 [tool.ruff.lint.isort]
-known-first-party = ["msgraph_tool_agent_8b"]
+known-first-party = ["defender_api_tool"]
 
 [tool.mypy]
 python_version = "3.10"
@@ -164,7 +175,7 @@ markers = [
 ]
 
 [tool.coverage.run]
-source = ["src/msgraph_tool_agent_8b"]
+source = ["src/defender_api_tool"]
 branch = true
 omit = ["*/tests/*", "*/__init__.py"]
 

@@ -3,7 +3,7 @@
 import os
 import tempfile
 
-from msgraph_tool_agent_8b.utils.config import (
+from defender_api_tool.utils.config import (
     DEFAULT_MODEL_CONFIG,
     ModelConfig,
     TrainingConfig,

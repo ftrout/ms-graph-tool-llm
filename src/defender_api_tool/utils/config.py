@@ -1,4 +1,4 @@
-"""Configuration classes for msgraph-tool-agent-8b."""
+"""Configuration classes for defender-api-tool."""
 
 import json
 from dataclasses import dataclass, field
