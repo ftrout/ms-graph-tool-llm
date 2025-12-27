@@ -9,7 +9,9 @@ Focused on Defender XDR, Sentinel, and security operations endpoints.
 import argparse
 import json
 import os
+import random
 import re
+import uuid
 from typing import Any
 
 from defender_api_tool.utils.logging import get_logger
@@ -188,7 +190,9 @@ class DefenderAPIHarvester:
 
     def _generate_example_args(self, params: dict[str, Any]) -> dict[str, Any]:
         """
-        Generate example arguments based on parameter definitions.
+        Generate randomized example arguments based on parameter definitions.
+        
+        Now uses random values for IDs, integers, and booleans to prevent overfitting.
 
         Args:
             params: Parameter schema with properties.
@@ -204,45 +208,68 @@ class DefenderAPIHarvester:
 
             # Handle OData parameters specially
             if name == "$filter":
-                args[name] = "severity eq 'high' and status eq 'new'"
+                filters = [
+                    "severity eq 'high'",
+                    "severity eq 'medium'",
+                    "status eq 'new'",
+                    "status eq 'inProgress'",
+                    "vendorInformation/provider eq 'ASC'",
+                ]
+                # Combine 1 or 2 random filters
+                args[name] = " and ".join(random.sample(filters, k=random.randint(1, 2)))
             elif name == "$select":
-                args[name] = "id,title,severity,status,assignedTo"
+                fields = ["id", "title", "severity", "status", "assignedTo", "createdDateTime"]
+                # Select random subset of fields
+                args[name] = ",".join(random.sample(fields, k=random.randint(2, 4)))
             elif name == "$top":
-                args[name] = 50
+                args[name] = random.choice([10, 25, 50, 100])
             elif name == "$orderby":
-                args[name] = "createdDateTime desc"
+                fields = ["createdDateTime", "lastModifiedDateTime", "severity"]
+                direction = random.choice(["asc", "desc"])
+                args[name] = f"{random.choice(fields)} {direction}"
             elif name == "$expand":
-                args[name] = "alerts"
+                args[name] = random.choice(["alerts", "evidence", "relatedIncidents"])
             elif name == "$search":
-                args[name] = '"malware OR ransomware"'
-            # Handle security-specific parameters
+                terms = ["malware", "ransomware", "phishing", "backdoor", "mimikatz"]
+                args[name] = f'"{random.choice(terms)}"'
+            
+            # Handle security-specific parameters with random values
             elif name == "alertId":
-                args[name] = "da637551227677560813_-961444813"
+                # Generate a random alert ID format (mix of ID and hash)
+                args[name] = f"{uuid.uuid4()}_{random.randint(10000000, 99999999)}"
             elif name == "incidentId":
-                args[name] = "924521"
+                args[name] = str(random.randint(1000, 999999))
             elif name == "userId":
-                args[name] = "user@contoso.com"
+                users = ["alice", "bob", "charlie", "admin", "service_account"]
+                domain = random.choice(["contoso.com", "fabrikam.com", "woodgrove.com"])
+                args[name] = f"{random.choice(users)}@{domain}"
             elif name == "hostName":
-                args[name] = "workstation01.contoso.com"
+                prefixes = ["desktop", "laptop", "server", "workstation"]
+                args[name] = f"{random.choice(prefixes)}-{random.randint(1, 99):02d}"
             elif name == "query":
-                args[name] = (
-                    "DeviceProcessEvents | where FileName == 'powershell.exe' "
-                    "| take 100"
-                )
+                # KQL Query templates
+                kql_queries = [
+                    "DeviceProcessEvents | where FileName == 'powershell.exe' | take 100",
+                    "SecurityAlert | where Severity == 'High' | sort by TimeGenerated desc",
+                    "DeviceLogonEvents | where ActionType == 'LogonFailed' | count",
+                    "IdentityLogonEvents | where Application == 'Office 365' | take 50",
+                ]
+                args[name] = random.choice(kql_queries)
             elif name == "timeRange":
-                args[name] = "P7D"
-            # Handle by type
+                args[name] = random.choice(["P1D", "P7D", "P30D", "PT1H", "PT24H"])
+            
+            # Handle standard types
             elif param_type == "integer":
-                args[name] = 10
+                args[name] = random.randint(1, 100)
             elif param_type == "boolean":
-                args[name] = True
+                args[name] = random.choice([True, False])
             elif param_type == "array":
-                args[name] = ["item1", "item2"]
+                args[name] = [f"item{i}" for i in range(random.randint(1, 3))]
             elif param_type == "object":
                 args[name] = {}
             else:
-                # Default to string with example value
-                args[name] = f"example_{name}"
+                # Default fallback for strings
+                args[name] = f"example_{name}_{random.randint(100, 999)}"
 
         return args
 
