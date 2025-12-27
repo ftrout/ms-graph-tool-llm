@@ -132,7 +132,3 @@ MIT License
 
 - [kodiak-secops-1](https://github.com/ftrout/kodiak-secops-1) - SOC alert triage model
 - [SecurityGraph-Agent](https://github.com/ftrout/SecurityGraph-Agent) - Security tool-calling agent
-
-### Contributions
-
-Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.

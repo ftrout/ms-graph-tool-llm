@@ -149,5 +149,5 @@ Carbon emissions estimated using the [ML CO2 Impact calculator](https://mlco2.gi
 
 ## Model Card Contact
 
-For questions, issues, or contributions, please visit:
+For questions or issues, please visit:
 - GitHub Issues: [github.com/ftrout/SecurityGraph-Agent/issues](https://github.com/ftrout/SecurityGraph-Agent/issues)
