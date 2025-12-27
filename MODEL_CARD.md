@@ -14,7 +14,7 @@
 
 ### Model Sources
 
-- **Repository**: [github.com/ftrout/securitygraph-agent](https://github.com/ftrout/securitygraph-agent)
+- **Repository**: [github.com/ftrout/SecurityGraph-Agent](https://github.com/ftrout/SecurityGraph-Agent)
 - **Related Projects**: [kodiak-secops-1](https://github.com/ftrout/kodiak-secops-1)
 
 ## Uses
@@ -143,11 +143,11 @@ Carbon emissions estimated using the [ML CO2 Impact calculator](https://mlco2.gi
   title={SecurityGraph-Agent: Enterprise Security Tool-Calling Agent for Microsoft Security Graph},
   author={ftrout},
   year={2025},
-  url={https://github.com/ftrout/securitygraph-agent}
+  url={https://github.com/ftrout/SecurityGraph-Agent}
 }
 ```
 
 ## Model Card Contact
 
 For questions, issues, or contributions, please visit:
-- GitHub Issues: [github.com/ftrout/securitygraph-agent/issues](https://github.com/ftrout/securitygraph-agent/issues)
+- GitHub Issues: [github.com/ftrout/SecurityGraph-Agent/issues](https://github.com/ftrout/SecurityGraph-Agent/issues)
