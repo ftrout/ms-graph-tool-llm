@@ -1,49 +1,57 @@
-# Contributor Covenant Code of Conduct
+# Code of Conduct
 
-## Our Pledge
+## Our Commitment
 
-We as members, contributors, and leaders pledge to make participation in our
-community a positive experience for everyone.
+We are committed to providing a welcoming and respectful environment for all users of SecurityGraph-Agent. This Code of Conduct outlines our expectations for behavior within our community spaces.
 
-## Our Standards
+## Expected Behavior
 
-Examples of behavior that contributes to a positive environment:
+When participating in community discussions, issue reports, or any other community interactions, we expect users to:
 
-* Using welcoming and inclusive language
-* Being respectful of differing viewpoints and experiences
-* Gracefully accepting constructive criticism
-* Focusing on what is best for the community
-* Showing empathy towards other community members
+- Use welcoming and inclusive language
+- Be respectful of differing viewpoints and experiences
+- Accept constructive feedback gracefully
+- Focus on what is best for the community
+- Show empathy towards other community members
+- Maintain professionalism in all interactions
 
-Examples of unacceptable behavior:
+## Unacceptable Behavior
 
-* Trolling, insulting or derogatory comments, and personal attacks
-* Public or private harassment
-* Publishing others' private information without explicit permission
-* Other conduct which could reasonably be considered inappropriate
+The following behaviors are considered unacceptable:
 
-## Enforcement Responsibilities
+- Trolling, insulting, or derogatory comments
+- Personal or political attacks
+- Public or private harassment
+- Publishing others' private information without explicit permission
+- Sharing sensitive security data or vulnerabilities publicly without responsible disclosure
+- Any conduct which could reasonably be considered inappropriate in a professional setting
 
-Community leaders are responsible for clarifying and enforcing our standards of
-acceptable behavior and will take appropriate action in response to any behavior
-that they deem inappropriate, threatening, or harmful.
+## Responsible Security Use
 
-## Scope
+As this project involves security tooling, users are expected to:
 
-This Code of Conduct applies within all community spaces, and also applies when
-an individual is officially representing the community in public spaces.
+- Use the tool only for authorized security operations
+- Follow responsible disclosure practices for any vulnerabilities discovered
+- Not use the tool for malicious purposes or unauthorized access
+- Validate all AI-generated outputs before execution in production environments
+- Maintain proper authentication and authorization practices
 
 ## Enforcement
 
-Instances of unacceptable behavior may be reported to the community leaders at
-ftrout@users.noreply.github.com. All complaints will be reviewed and investigated
-promptly and fairly.
+Instances of unacceptable behavior may be reported to the project maintainers at:
+- Email: ftrout@users.noreply.github.com
+
+All reports will be reviewed and investigated promptly and fairly. Project maintainers are obligated to maintain confidentiality with regard to the reporter of an incident.
+
+## Scope
+
+This Code of Conduct applies within all project spaces, including:
+
+- GitHub Issues and Discussions
+- Project documentation
+- Social media interactions related to the project
+- Any other community spaces associated with SecurityGraph-Agent
 
 ## Attribution
 
-This Code of Conduct is adapted from the [Contributor Covenant][homepage],
-version 2.1, available at
-[https://www.contributor-covenant.org/version/2/1/code_of_conduct.html][v2.1].
-
-[homepage]: https://www.contributor-covenant.org
-[v2.1]: https://www.contributor-covenant.org/version/2/1/code_of_conduct.html
+This Code of Conduct is adapted from the [Contributor Covenant](https://www.contributor-covenant.org), version 2.1.

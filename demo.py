@@ -143,7 +143,7 @@ def main() -> None:
 Examples:
   python demo.py                              # Load from ./securitygraph-agent
   python demo.py --adapter-path ./my-model    # Load from custom path
-  python demo.py --from-hub ftrout/securitygraph-agent  # Load from Hub
+  python demo.py --from-hub fmt0816/securitygraph-agent  # Load from Hub
   python demo.py --share                      # Create public share link
         """,
     )

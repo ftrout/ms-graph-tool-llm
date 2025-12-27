@@ -51,7 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Comprehensive README with quick start guide
   - MODEL_CARD.md for Hugging Face Hub
   - DATASET_CARD.md for dataset documentation
-  - CONTRIBUTING.md with development guidelines
+  - FAQ.md with frequently asked questions
   - SECURITY.md with vulnerability reporting procedures
   - CODE_OF_CONDUCT.md for community guidelines
 

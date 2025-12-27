@@ -7,7 +7,7 @@ Designed for Security Operations Centers (SOC) and incident response workflows.
 
 Example:
     >>> from defender_api_tool import DefenderApiAgent
-    >>> agent = DefenderApiAgent.from_pretrained("ftrout/defender-api-tool")
+    >>> agent = DefenderApiAgent.from_pretrained("fmt0816/securitygraph-agent")
     >>> result = agent.generate("Get all high severity security alerts from the last 24 hours")
     >>> print(result)
     {"name": "security_alerts_list", "arguments": {"$filter": "severity eq 'high'", ...}}

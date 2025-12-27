@@ -68,7 +68,7 @@ from defender_api_tool import DefenderApiAgent
 agent = DefenderApiAgent.from_pretrained("./securitygraph-agent")
 
 # Or from Hugging Face Hub
-agent = DefenderApiAgent.from_hub("ftrout/securitygraph-agent")
+agent = DefenderApiAgent.from_hub("fmt0816/securitygraph-agent")
 
 # Define a security tool
 alert_tool = {
@@ -195,6 +195,7 @@ securitygraph-agent/
 ├── demo.py                       # Gradio web demo
 ├── MODEL_CARD.md                 # HuggingFace model card
 ├── DATASET_CARD.md               # HuggingFace dataset card
+├── FAQ.md                        # Frequently asked questions
 ├── pyproject.toml                # Package configuration
 └── README.md                     # This file
 ```
@@ -320,17 +321,6 @@ class DefenderToolEvaluator:
 ## Disclaimer
 
 This tool is intended for authorized security operations only. While the model is trained to be accurate, always validate AI-generated API calls before executing them in a production environment. The authors are not responsible for unintended actions performed by the agent against live Microsoft Security Graph tenants.
-
-## Contributing
-
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-### Areas for Contribution
-- Additional security API endpoints
-- Improved prompt templates
-- Evaluation benchmarks
-- Documentation improvements
-- Bug fixes
 
 ## Security
 
