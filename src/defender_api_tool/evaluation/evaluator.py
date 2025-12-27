@@ -1,8 +1,8 @@
 """
-Comprehensive evaluation framework for msgraph-tool-agent-8b.
+Comprehensive evaluation framework for defender-api-tool.
 
-Provides metrics for evaluating tool-calling accuracy, JSON validity,
-and schema compliance.
+Provides metrics for evaluating security tool-calling accuracy, JSON validity,
+and schema compliance for Defender XDR API operations.
 """
 
 import json
@@ -14,14 +14,15 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from transformers import PreTrainedModel, PreTrainedTokenizer
 
-from msgraph_tool_agent_8b.utils.logging import get_logger
+from defender_api_tool.utils.logging import get_logger
 
 logger = get_logger("evaluation.evaluator")
 
-# System prompt for evaluation
+# System prompt for security evaluation
 SYSTEM_PROMPT = (
-    "You are an AI Agent for Microsoft Graph. Given the user request and "
-    "the available tool definition, generate the correct JSON tool call."
+    "You are a Security Operations AI Agent for Microsoft Defender XDR. "
+    "Given the user request and the available tool definition, generate the "
+    "correct JSON tool call for security analysis, incident response, or threat hunting."
 )
 
 
@@ -99,12 +100,12 @@ class EvaluationMetrics:
         )
 
 
-class GraphToolEvaluator:
+class DefenderToolEvaluator:
     """
-    Comprehensive evaluator for Microsoft Graph tool-calling models.
+    Comprehensive evaluator for Microsoft Defender XDR tool-calling models.
 
     Evaluates models on JSON validity, tool name accuracy, and
-    argument correctness.
+    argument correctness for security operations.
 
     Attributes:
         base_model_id: Base model identifier
@@ -112,8 +113,8 @@ class GraphToolEvaluator:
         device: Inference device (cuda/cpu)
 
     Example:
-        >>> evaluator = GraphToolEvaluator(
-        ...     adapter_path="./msgraph-tool-agent-8b"
+        >>> evaluator = DefenderToolEvaluator(
+        ...     adapter_path="./defender-api-tool"
         ... )
         >>> metrics = evaluator.evaluate_dataset("./data/test.jsonl")
         >>> print(metrics)
@@ -464,17 +465,21 @@ class GraphToolEvaluator:
             print(f"\n[Invalid JSON] Inference time: {inference_time:.3f}s")
 
 
-# Default test tool for quick evaluation
+# Backward compatibility alias
+GraphToolEvaluator = DefenderToolEvaluator
+
+
+# Default test tool for quick evaluation (security-focused)
 DEFAULT_TEST_TOOL = {
     "type": "function",
     "function": {
-        "name": "users_ListUsers",
-        "description": "Retrieve a list of user objects.",
+        "name": "security_alerts_list",
+        "description": "List security alerts from Microsoft Defender XDR.",
         "parameters": {
             "type": "object",
             "properties": {
-                "$filter": {"type": "string", "description": "Filter items"},
-                "$select": {"type": "string", "description": "Select properties"},
+                "$filter": {"type": "string", "description": "OData filter"},
+                "$top": {"type": "integer", "description": "Number of results"},
             },
         },
     },
@@ -485,7 +490,7 @@ def main() -> None:
     """CLI entry point for evaluation."""
     import argparse
 
-    parser = argparse.ArgumentParser(description="Evaluate msgraph-tool-agent-8b model")
+    parser = argparse.ArgumentParser(description="Evaluate defender-api-tool model")
     parser.add_argument(
         "--base-model",
         type=str,
@@ -495,7 +500,7 @@ def main() -> None:
     parser.add_argument(
         "--adapter-path",
         type=str,
-        default="msgraph-tool-agent-8b",
+        default="defender-api-tool",
         help="Path to trained LoRA adapter",
     )
     parser.add_argument(
@@ -507,7 +512,7 @@ def main() -> None:
     parser.add_argument(
         "--query",
         type=str,
-        default="Find the user with email 'admin@contoso.com' and select their id.",
+        default="Get all high severity security alerts from the last 24 hours.",
         help="Single query to evaluate",
     )
     parser.add_argument(
@@ -516,11 +521,11 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    from msgraph_tool_agent_8b.utils.logging import setup_logging
+    from defender_api_tool.utils.logging import setup_logging
 
     setup_logging()
 
-    evaluator = GraphToolEvaluator(
+    evaluator = DefenderToolEvaluator(
         base_model_id=args.base_model, adapter_path=args.adapter_path
     )
 

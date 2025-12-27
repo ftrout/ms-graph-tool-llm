@@ -5,52 +5,55 @@ import os
 import tempfile
 from unittest.mock import patch
 
-from msgraph_tool_agent_8b.data.harvester import PROMPT_TEMPLATES, GraphAPIHarvester
+from defender_api_tool.data.harvester import (
+    PROMPT_TEMPLATES,
+    DefenderAPIHarvester,
+)
 
 
-class TestGraphAPIHarvester:
-    """Test suite for GraphAPIHarvester."""
+class TestDefenderAPIHarvester:
+    """Test suite for DefenderAPIHarvester."""
 
     def test_init_default_url(self):
         """Test initialization with default URL."""
-        harvester = GraphAPIHarvester()
+        harvester = DefenderAPIHarvester()
         assert "githubusercontent.com" in harvester.openapi_url
         assert "msgraph-metadata" in harvester.openapi_url
 
     def test_init_custom_url(self):
         """Test initialization with custom URL."""
         custom_url = "https://example.com/openapi.yaml"
-        harvester = GraphAPIHarvester(openapi_url=custom_url)
+        harvester = DefenderAPIHarvester(openapi_url=custom_url)
         assert harvester.openapi_url == custom_url
 
     def test_clean_text_removes_html(self):
         """Test that HTML tags are removed from text."""
         text = "<p>Hello <b>World</b></p>"
-        result = GraphAPIHarvester.clean_text(text)
+        result = DefenderAPIHarvester.clean_text(text)
         assert result == "Hello World"
 
     def test_clean_text_normalizes_whitespace(self):
         """Test that whitespace is normalized."""
         text = "Hello    World\n\nTest"
-        result = GraphAPIHarvester.clean_text(text)
+        result = DefenderAPIHarvester.clean_text(text)
         assert result == "Hello World Test"
 
     def test_clean_text_handles_none(self):
         """Test that None input returns empty string."""
-        result = GraphAPIHarvester.clean_text(None)
+        result = DefenderAPIHarvester.clean_text(None)
         assert result == ""
 
     def test_clean_text_handles_empty(self):
         """Test that empty string returns empty string."""
-        result = GraphAPIHarvester.clean_text("")
+        result = DefenderAPIHarvester.clean_text("")
         assert result == ""
 
     def test_format_tool_basic(self):
-        """Test basic tool formatting."""
-        harvester = GraphAPIHarvester()
+        """Test basic tool formatting for security alerts."""
+        harvester = DefenderAPIHarvester()
         operation = {
-            "operationId": "users_ListUsers",
-            "summary": "List all users",
+            "operationId": "security_alerts_list",
+            "summary": "List security alerts",
             "parameters": [
                 {
                     "name": "$filter",
@@ -61,40 +64,40 @@ class TestGraphAPIHarvester:
             ],
         }
 
-        tool = harvester._format_tool("/users", "get", operation)
+        tool = harvester._format_tool("/security/alerts", "get", operation)
 
         assert tool["type"] == "function"
-        assert tool["function"]["name"] == "users_ListUsers"
-        assert tool["function"]["description"] == "List all users"
+        assert tool["function"]["name"] == "security_alerts_list"
+        assert tool["function"]["description"] == "List security alerts"
         assert "$filter" in tool["function"]["parameters"]["properties"]
 
     def test_format_tool_with_path_params(self):
         """Test tool formatting with path parameters."""
-        harvester = GraphAPIHarvester()
+        harvester = DefenderAPIHarvester()
         operation = {
-            "operationId": "users_GetUser",
-            "summary": "Get user by ID",
+            "operationId": "security_alerts_get",
+            "summary": "Get alert by ID",
             "parameters": [
                 {
-                    "name": "user-id",
+                    "name": "alert-id",
                     "in": "path",
                     "required": True,
                     "schema": {"type": "string"},
-                    "description": "User ID",
+                    "description": "Alert ID",
                 }
             ],
         }
 
-        tool = harvester._format_tool("/users/{user-id}", "get", operation)
+        tool = harvester._format_tool("/security/alerts/{alert-id}", "get", operation)
 
-        assert "user-id" in tool["function"]["parameters"]["properties"]
-        assert "user-id" in tool["function"]["parameters"]["required"]
+        assert "alert-id" in tool["function"]["parameters"]["properties"]
+        assert "alert-id" in tool["function"]["parameters"]["required"]
 
     def test_generate_example_args_string(self):
         """Test example argument generation for string types."""
-        harvester = GraphAPIHarvester()
+        harvester = DefenderAPIHarvester()
         params = {
-            "properties": {"name": {"type": "string", "description": "User name"}}
+            "properties": {"name": {"type": "string", "description": "Alert name"}}
         }
 
         args = harvester._generate_example_args(params)
@@ -102,7 +105,7 @@ class TestGraphAPIHarvester:
 
     def test_generate_example_args_integer(self):
         """Test example argument generation for integer types."""
-        harvester = GraphAPIHarvester()
+        harvester = DefenderAPIHarvester()
         params = {"properties": {"count": {"type": "integer", "description": "Count"}}}
 
         args = harvester._generate_example_args(params)
@@ -110,7 +113,7 @@ class TestGraphAPIHarvester:
 
     def test_generate_example_args_boolean(self):
         """Test example argument generation for boolean types."""
-        harvester = GraphAPIHarvester()
+        harvester = DefenderAPIHarvester()
         params = {
             "properties": {"enabled": {"type": "boolean", "description": "Is enabled"}}
         }
@@ -120,34 +123,34 @@ class TestGraphAPIHarvester:
 
     def test_generate_example_args_odata_filter(self):
         """Test example argument generation for OData $filter."""
-        harvester = GraphAPIHarvester()
+        harvester = DefenderAPIHarvester()
         params = {
             "properties": {"$filter": {"type": "string", "description": "Filter"}}
         }
 
         args = harvester._generate_example_args(params)
-        assert "startswith" in args["$filter"]
+        assert "severity" in args["$filter"]
 
     def test_generate_example_args_odata_select(self):
         """Test example argument generation for OData $select."""
-        harvester = GraphAPIHarvester()
+        harvester = DefenderAPIHarvester()
         params = {
             "properties": {"$select": {"type": "string", "description": "Select"}}
         }
 
         args = harvester._generate_example_args(params)
         assert "id" in args["$select"]
-        assert "displayName" in args["$select"]
+        assert "severity" in args["$select"]
 
     def test_process_spec_generates_samples(self):
         """Test that process_spec generates training samples."""
-        harvester = GraphAPIHarvester()
+        harvester = DefenderAPIHarvester()
         spec = {
             "paths": {
-                "/users": {
+                "/security/alerts": {
                     "get": {
-                        "operationId": "users_ListUsers",
-                        "summary": "List all users",
+                        "operationId": "security_alerts_list",
+                        "summary": "List security alerts",
                         "parameters": [],
                     }
                 }
@@ -164,14 +167,14 @@ class TestGraphAPIHarvester:
 
     def test_process_spec_skips_invalid_methods(self):
         """Test that non-HTTP methods are skipped."""
-        harvester = GraphAPIHarvester()
+        harvester = DefenderAPIHarvester()
         spec = {
             "paths": {
-                "/users": {
+                "/security/alerts": {
                     "parameters": [],  # Not an HTTP method
                     "get": {
-                        "operationId": "users_ListUsers",
-                        "summary": "List users",
+                        "operationId": "security_alerts_list",
+                        "summary": "List security alerts",
                         "parameters": [],
                     },
                 }
@@ -184,12 +187,12 @@ class TestGraphAPIHarvester:
 
     def test_process_spec_skips_missing_summary(self):
         """Test that endpoints without summary are skipped."""
-        harvester = GraphAPIHarvester()
+        harvester = DefenderAPIHarvester()
         spec = {
             "paths": {
-                "/users": {
+                "/security/alerts": {
                     "get": {
-                        "operationId": "users_ListUsers",
+                        "operationId": "security_alerts_list",
                         "parameters": [],
                         # No summary
                     }
@@ -202,15 +205,15 @@ class TestGraphAPIHarvester:
 
     def test_harvest_creates_output_file(self):
         """Test that harvest creates the output file."""
-        harvester = GraphAPIHarvester()
+        harvester = DefenderAPIHarvester()
 
         # Mock the download to avoid network call
         mock_spec = {
             "paths": {
-                "/users": {
+                "/security/alerts": {
                     "get": {
-                        "operationId": "users_ListUsers",
-                        "summary": "List all users",
+                        "operationId": "security_alerts_list",
+                        "summary": "List security alerts",
                         "parameters": [],
                     }
                 }
@@ -248,8 +251,26 @@ class TestPromptTemplates:
 
     def test_templates_format_correctly(self):
         """Test that templates format correctly with action."""
-        action = "list all users"
+        action = "list security alerts"
         for template in PROMPT_TEMPLATES:
             result = template.format(action=action)
             assert action in result
             assert "{action}" not in result
+
+    def test_security_focused_templates(self):
+        """Test that prompt templates include security-focused language."""
+        security_keywords = [
+            "investigate",
+            "incident",
+            "threat",
+            "SOC",
+            "triage",
+            "compliance",
+        ]
+        found_keywords = set()
+        for template in PROMPT_TEMPLATES:
+            for keyword in security_keywords:
+                if keyword.lower() in template.lower():
+                    found_keywords.add(keyword)
+        # Should have at least some security-focused templates
+        assert len(found_keywords) >= 3

@@ -1,395 +1,260 @@
-# msgraph-tool-agent-8b
+# DefenderApi-Tool
 
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Hugging Face](https://img.shields.io/badge/HuggingFace-Model-orange)](https://huggingface.co/)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-**Enterprise-Grade Tool-Calling LLM for Microsoft Graph API**
+**Enterprise-Grade Security Tool-Calling Agent for Microsoft Defender XDR**
 
-msgraph-tool-agent-8b is a specialized fine-tuning pipeline that trains language models to convert natural language into precise, schema-validated JSON tool calls for the Microsoft Graph API. Unlike generic chatbots, this model uses **Schema-First Learning** to reliably translate user intent into valid API operations.
+A specialized LLM fine-tuning pipeline that trains models to convert natural language security requests into precise, schema-validated JSON tool calls for the Microsoft Defender XDR API. Designed for Security Operations Centers (SOC), incident response, and threat hunting workflows.
 
-## Features
+## Key Features
 
-- **Schema-First Training**: Automatically generates training data from the official Microsoft Graph OpenAPI specification
-- **Strict JSON Compliance**: Fine-tuned to output valid JSON objects that strictly adhere to API tool definitions
-- **State-of-the-Art Foundation**: Built on **Hermes 3 Llama 3.1 8B** - purpose-built for function calling with superior structured output
-- **Efficient Fine-Tuning**: Uses **QLoRA** (4-bit quantization + LoRA) to train on consumer-grade hardware
+- **Security-First Design**: Optimized for Microsoft Defender XDR, Security Graph API, and SOC operations
+- **Schema-First Training**: Training data generated from official Microsoft Security API specifications
+- **Strict JSON Output**: Produces valid, schema-compliant JSON tool calls every time
+- **Efficient Training**: Uses QLoRA (4-bit quantization + LoRA) for training on consumer GPUs
 - **Production Ready**: Comprehensive evaluation metrics, logging, and Hugging Face Hub integration
-- **Modular Design**: Clean package structure with reusable components
+- **HuggingFace Integration**: Easy model and dataset sharing through Hugging Face Hub
+
+## Security Operations Supported
+
+| Category | Operations |
+|----------|------------|
+| **Alert Management** | List, get, update security alerts |
+| **Incident Response** | Manage and investigate security incidents |
+| **Threat Hunting** | Run advanced hunting queries with KQL |
+| **Identity Protection** | Monitor risky users and sign-in events |
+| **Security Posture** | Check secure scores and compliance |
+| **Threat Intelligence** | Query threat indicators (IOCs) |
+| **Audit & Compliance** | Access audit logs and directory events |
 
 ## Quick Start
 
 ### Installation
 
-**Option 1: Dev Container (Recommended)**
+```bash
+# With pip
+pip install defender-api-tool
 
-The easiest way to get started is using the included Dev Container with VS Code:
+# With demo UI
+pip install 'defender-api-tool[demo]'
 
-1. Install [Docker](https://www.docker.com/products/docker-desktop) and [VS Code](https://code.visualstudio.com/)
-2. Install the [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
-3. Clone and open the repository:
-   ```bash
-   git clone https://github.com/ftrout/msgraph-tool-agent-8b
-   code msgraph-tool-agent-8b
-   ```
-4. Click "Reopen in Container" when prompted (or run `Dev Containers: Reopen in Container` from the command palette)
+# For development
+pip install 'defender-api-tool[dev]'
+```
 
-The container includes:
-- NVIDIA PyTorch base image with CUDA support
-- All dependencies pre-installed
-- GPU passthrough configured
-- 16GB shared memory for training
-
-**Option 2: Local Installation**
+### Docker (Recommended for Training)
 
 ```bash
 # Clone the repository
-git clone https://github.com/ftrout/msgraph-tool-agent-8b
-cd msgraph-tool-agent-8b
+git clone https://github.com/ftrout/defender-api-tool.git
+cd defender-api-tool
 
-# Install the package
-pip install -e .
-
-# Or install with development dependencies
-pip install -e ".[dev]"
+# Start dev container with GPU support
+docker run --gpus all -it --rm \
+  -v $(pwd):/workspace \
+  -w /workspace \
+  nvcr.io/nvidia/pytorch:24.08-py3 \
+  pip install -e '.[dev]'
 ```
 
 ### Basic Usage
 
 ```python
-from msgraph_tool_agent_8b import MSGraphAgent
+from defender_api_tool import DefenderApiAgent
 
 # Load a trained agent
-agent = MSGraphAgent.from_pretrained("./msgraph-tool-agent-8b")
+agent = DefenderApiAgent.from_pretrained("./defender-api-tool")
 
-# Define a tool
-email_tool = {
+# Or from Hugging Face Hub
+agent = DefenderApiAgent.from_hub("ftrout/defender-api-tool")
+
+# Define a security tool
+alert_tool = {
     "type": "function",
     "function": {
-        "name": "me_sendMail",
-        "description": "Send a new message.",
+        "name": "security_alerts_list",
+        "description": "List security alerts from Microsoft Defender XDR.",
         "parameters": {
             "type": "object",
             "properties": {
-                "subject": {"type": "string"},
-                "toRecipients": {"type": "array"}
+                "$filter": {"type": "string", "description": "OData filter"},
+                "$top": {"type": "integer", "description": "Number of results"}
             }
         }
     }
 }
 
-# Generate a tool call
+# Generate a tool call from natural language
 result = agent.generate(
-    "Send an email to john@example.com about the project update",
-    tool=email_tool
+    "Get all high severity security alerts from the last 24 hours",
+    tool=alert_tool
 )
 print(result)
-# {"name": "me_sendMail", "arguments": {"subject": "Project Update", "toRecipients": [...]}}
+# {"name": "security_alerts_list", "arguments": {"$filter": "severity eq 'high'", "$top": 50}}
 ```
 
 ## Training Pipeline
 
-The complete pipeline consists of four stages:
-
-### Stage 1: Data Harvesting
-
-Downloads the Microsoft Graph OpenAPI specification and generates training data:
+### Stage 1: Generate Training Data
 
 ```bash
-# Using CLI
-msgraph-harvest --output-dir ./data
-
-# Or using Python
-from msgraph_tool_agent_8b import GraphAPIHarvester
-
-harvester = GraphAPIHarvester()
-harvester.harvest(output_dir="./data")
+# Generate security-focused training data from Microsoft Graph Security API
+defender-harvest --output-dir ./data
 ```
 
-**Output**: `./data/graph_tool_dataset.jsonl`
-
-### Stage 2: Fine-Tuning
-
-Trains the model using QLoRA:
+### Stage 2: Fine-tune the Model
 
 ```bash
-# Using CLI
-msgraph-train \
-    --data-file ./data/graph_tool_dataset.jsonl \
-    --output-name msgraph-tool-agent-8b \
-    --epochs 3 \
-    --batch-size 4
-
-# Or using Python
-from msgraph_tool_agent_8b import GraphToolTrainer
-
-trainer = GraphToolTrainer()
-trainer.train(
-    data_file="./data/graph_tool_dataset.jsonl",
-    output_name="msgraph-tool-agent-8b"
-)
+# Train with QLoRA (requires ~16GB VRAM)
+defender-train \
+  --data-file ./data/defender_tool_dataset.jsonl \
+  --output-name defender-api-tool \
+  --epochs 3
 ```
 
-**Output**: `./msgraph-tool-agent-8b/` (LoRA adapter)
-
-### Stage 3: Evaluation
-
-Evaluates the trained model:
+### Stage 3: Evaluate
 
 ```bash
-# Single query evaluation
-msgraph-evaluate \
-    --adapter-path ./msgraph-tool-agent-8b \
-    --query "List all users with displayName starting with 'A'"
-
-# Dataset evaluation with metrics
-msgraph-evaluate \
-    --adapter-path ./msgraph-tool-agent-8b \
-    --data-file ./data/test_dataset.jsonl \
-    --save-results ./evaluation_results.json
+# Run evaluation
+defender-evaluate \
+  --adapter-path ./defender-api-tool \
+  --data-file ./data/test_dataset.jsonl
 ```
 
 ### Stage 4: Interactive Demo
 
-Launch the interactive agent:
-
 ```bash
-msgraph-agent --adapter-path ./msgraph-tool-agent-8b
-```
+# CLI interface
+defender-agent --adapter-path ./defender-api-tool
 
-## Uploading to Hugging Face Hub
-
-Upload your trained model to share with the community:
-
-```bash
-msgraph-upload ./msgraph-tool-agent-8b username/msgraph-tool-agent-8b
-```
-
-Or programmatically:
-
-```python
-from msgraph_tool_agent_8b.hub import upload_to_hub
-
-upload_to_hub(
-    adapter_path="./msgraph-tool-agent-8b",
-    repo_id="username/msgraph-tool-agent-8b",
-    private=False
-)
-```
-
-### Uploading Datasets
-
-You can also upload your generated training dataset:
-
-```bash
-msgraph-upload-dataset ./data/graph_tool_dataset.jsonl username/msgraph-tool-dataset
-```
-
-Or programmatically:
-
-```python
-from msgraph_tool_agent_8b.hub import upload_dataset_to_hub
-
-upload_dataset_to_hub(
-    dataset_path="./data/graph_tool_dataset.jsonl",
-    repo_id="username/msgraph-tool-dataset",
-    private=False
-)
+# Gradio web UI
+python demo.py --adapter-path ./defender-api-tool
 ```
 
 ## Model Architecture
 
-| Component | Specification |
-|-----------|---------------|
-| **Base Model** | NousResearch/Hermes-3-Llama-3.1-8B |
-| **Format** | ChatML (Hermes format) |
-| **Quantization** | 4-bit NF4 (Normal Float 4) |
-| **Adapter Rank (r)** | 32 |
-| **Adapter Alpha** | 64 |
-| **Target Modules** | q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj |
-| **Context Window** | 2048 tokens |
-| **Attention** | Flash Attention 2 (with SDPA fallback) |
+### Base Model
+- **Name**: Hermes-3-Llama-3.1-8B
+- **Publisher**: NousResearch
+- **Why Hermes 3?**: Purpose-built for function calling, trained on tool-use datasets
 
-### Why Hermes 3?
+### Training Configuration
 
-- **Purpose-built for function calling**: Trained specifically on tool-use datasets
-- **Reliable JSON output**: Less fine-tuning needed for structured output
-- **Strong base performance**: Llama 3.1 foundation with enhanced instruction following
-- **Active development**: NousResearch actively maintains and improves the model
+| Parameter | Value |
+|-----------|-------|
+| Quantization | 4-bit NF4 (Normal Float) |
+| LoRA Rank | 32 |
+| LoRA Alpha | 64 |
+| Target Modules | q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj |
+| Learning Rate | 1e-4 |
+| Batch Size | 16 (effective) |
+| Epochs | 3 |
+| Max Sequence Length | 2048 |
+
+## Evaluation Metrics
+
+| Metric | Description |
+|--------|-------------|
+| **JSON Validity Rate** | Percentage of outputs that are valid JSON |
+| **Tool Name Accuracy** | Percentage of correct tool names |
+| **Argument Accuracy** | Percentage of correct argument structures |
+
+## CLI Commands
+
+| Command | Description |
+|---------|-------------|
+| `defender-harvest` | Generate training data from Security API spec |
+| `defender-train` | Fine-tune the model with QLoRA |
+| `defender-evaluate` | Evaluate model performance |
+| `defender-agent` | Interactive CLI for testing |
+| `defender-upload` | Upload model to Hugging Face Hub |
+| `defender-upload-dataset` | Upload dataset to Hugging Face Hub |
 
 ## Project Structure
 
 ```
-msgraph-tool-agent-8b/
-├── .devcontainer/
-│   └── devcontainer.json        # VS Code Dev Container config
+defender-api-tool/
 ├── src/
-│   └── msgraph_tool_agent_8b/
+│   └── defender_api_tool/
 │       ├── __init__.py           # Package exports
 │       ├── hub.py                # Hugging Face Hub integration
 │       ├── data/
-│       │   ├── __init__.py
-│       │   └── harvester.py      # OpenAPI data harvester
+│       │   └── harvester.py      # Security API data harvester
 │       ├── training/
-│       │   ├── __init__.py
 │       │   └── trainer.py        # QLoRA training pipeline
 │       ├── evaluation/
-│       │   ├── __init__.py
 │       │   └── evaluator.py      # Comprehensive evaluation
 │       ├── inference/
-│       │   ├── __init__.py
-│       │   └── agent.py          # MSGraphAgent class
+│       │   └── agent.py          # DefenderApiAgent class
 │       └── utils/
-│           ├── __init__.py
 │           ├── config.py         # Configuration classes
 │           └── logging.py        # Logging utilities
 ├── tests/                        # Unit tests
-├── pyproject.toml               # Package configuration
-├── README.md                    # This file
-└── LICENSE                      # MIT License
-```
-
-## Requirements
-
-### Hardware
-
-| Use Case | GPU VRAM | Notes |
-|----------|----------|-------|
-| Training | 16GB+ | RTX 3090, 4090, A10G recommended |
-| Inference | 8GB+ | RTX 3070+ or equivalent |
-| Disk Space | ~20GB | Model weights and datasets |
-
-### Software
-
-- **OS**: Linux (Ubuntu 22.04 LTS recommended) or WSL2
-- **Python**: 3.10+
-- **CUDA**: 11.8 or newer
-
-## Configuration
-
-### Model Configuration
-
-```python
-from msgraph_tool_agent_8b.utils.config import ModelConfig
-
-config = ModelConfig(
-    base_model_id="NousResearch/Hermes-3-Llama-3.1-8B",
-    lora_r=32,
-    lora_alpha=64,
-    lora_dropout=0.05,
-    max_seq_length=2048
-)
-```
-
-### Training Configuration
-
-```python
-from msgraph_tool_agent_8b.utils.config import TrainingConfig
-
-config = TrainingConfig(
-    num_train_epochs=3,
-    per_device_train_batch_size=4,
-    gradient_accumulation_steps=4,
-    learning_rate=1e-4,
-    bf16=True,
-    # Early stopping
-    early_stopping=True,
-    early_stopping_patience=3,
-    # Best model selection
-    load_best_model_at_end=True,
-    # Experiment tracking
-    report_to="wandb",  # or "tensorboard", "all", "none"
-    run_name="my-training-run",
-)
-```
-
-### CLI Training Options
-
-```bash
-msgraph-train \
-    --data-file ./data/graph_tool_dataset.jsonl \
-    --output-name msgraph-tool-agent-8b \
-    --epochs 3 \
-    --batch-size 4 \
-    --learning-rate 1e-4 \
-    --lora-rank 32 \
-    --early-stopping-patience 3 \
-    --report-to wandb \
-    --run-name "production-run-1"
-```
-
-| Option | Description |
-|--------|-------------|
-| `--no-early-stopping` | Disable early stopping |
-| `--early-stopping-patience N` | Stop after N evals without improvement |
-| `--report-to {none,wandb,tensorboard,all}` | Experiment tracking |
-| `--run-name NAME` | Name for the training run |
-| `--push-to-hub` | Push directly to Hugging Face Hub |
-
-## Evaluation Metrics
-
-The evaluation framework provides comprehensive metrics:
-
-```
-============================================================
-EVALUATION METRICS
-============================================================
-Total Samples:        1000
-────────────────────────────────────────────────────────────
-JSON Validity Rate:   98.50% (985/1000)
-Tool Name Accuracy:   97.20% (972/1000)
-Argument Accuracy:    95.80% (958/1000)
-────────────────────────────────────────────────────────────
-Overall Accuracy:     95.80%
-────────────────────────────────────────────────────────────
-Avg Inference Time:   0.245s
-Tokens/Second:        156.3
-============================================================
+├── demo.py                       # Gradio web demo
+├── MODEL_CARD.md                 # HuggingFace model card
+├── DATASET_CARD.md               # HuggingFace dataset card
+├── pyproject.toml                # Package configuration
+└── README.md                     # This file
 ```
 
 ## Development
 
-### Running Tests
+### Setup
 
 ```bash
-# Install dev dependencies
-pip install -e ".[dev]"
+# Clone and install
+git clone https://github.com/ftrout/defender-api-tool.git
+cd defender-api-tool
+pip install -e '.[dev]'
 
-# Run tests
-pytest tests/ -v
-
-# Run with coverage
-pytest tests/ --cov=src/msgraph_tool_agent_8b --cov-report=html
+# Install pre-commit hooks
+pre-commit install
 ```
 
-### Code Style
+### Code Quality
 
 ```bash
 # Format code
-black src/ tests/
+black src tests
 
 # Lint
-ruff check src/ tests/
+ruff check src tests
 
-# Type checking
-mypy src/
+# Type check
+mypy src
+
+# Run tests
+pytest tests -v
 ```
+
+## Hardware Requirements
+
+### Training
+- **GPU**: 16GB+ VRAM (RTX 3090, 4090, A10G recommended)
+- **OS**: Linux (Ubuntu 22.04 LTS) or WSL2
+- **Python**: 3.10+
+- **CUDA**: 11.8+
+
+### Inference
+- **GPU**: 8GB+ VRAM (RTX 3070+ or equivalent)
+- **Python**: 3.10+
 
 ## API Reference
 
-### MSGraphAgent
+### DefenderApiAgent
 
 ```python
-class MSGraphAgent:
-    """Microsoft Graph API tool-calling agent."""
+class DefenderApiAgent:
+    """Microsoft Defender XDR API tool-calling agent."""
 
     @classmethod
-    def from_pretrained(cls, adapter_path: str, ...) -> "MSGraphAgent":
+    def from_pretrained(cls, adapter_path: str, ...) -> "DefenderApiAgent":
         """Load a trained agent from a saved adapter."""
 
     @classmethod
-    def from_hub(cls, repo_id: str, ...) -> "MSGraphAgent":
+    def from_hub(cls, repo_id: str, ...) -> "DefenderApiAgent":
         """Load a trained agent from Hugging Face Hub."""
 
     def generate(
@@ -403,25 +268,25 @@ class MSGraphAgent:
         """Generate a tool call for the given instruction."""
 ```
 
-### GraphAPIHarvester
+### DefenderAPIHarvester
 
 ```python
-class GraphAPIHarvester:
-    """Harvests Microsoft Graph API specifications for training."""
+class DefenderAPIHarvester:
+    """Harvests Microsoft Defender XDR API specifications for training."""
 
     def harvest(
         self,
         output_dir: str = "./data",
-        output_filename: str = "graph_tool_dataset.jsonl"
+        output_filename: str = "defender_tool_dataset.jsonl"
     ) -> str:
         """Download and process the API spec into training data."""
 ```
 
-### GraphToolTrainer
+### DefenderToolTrainer
 
 ```python
-class GraphToolTrainer:
-    """Trainer for fine-tuning LLMs on Microsoft Graph tool calling."""
+class DefenderToolTrainer:
+    """Trainer for fine-tuning LLMs on Defender XDR tool calling."""
 
     def train(
         self,
@@ -433,11 +298,11 @@ class GraphToolTrainer:
         """Train the model and save the adapter."""
 ```
 
-### GraphToolEvaluator
+### DefenderToolEvaluator
 
 ```python
-class GraphToolEvaluator:
-    """Evaluator for Microsoft Graph tool-calling models."""
+class DefenderToolEvaluator:
+    """Evaluator for Defender XDR tool-calling models."""
 
     def evaluate_dataset(
         self,
@@ -448,9 +313,28 @@ class GraphToolEvaluator:
         """Evaluate the model on a dataset."""
 ```
 
+## Related Projects
+
+- [kodiak-secops-1](https://github.com/ftrout/kodiak-secops-1) - SOC alert triage model for security operations
+
 ## Disclaimer
 
-This tool is intended for research and development purposes. While the model is trained to be secure, always validate AI-generated API calls before executing them in a production environment. The authors are not responsible for unintended actions performed by the agent against live Microsoft Graph tenants.
+This tool is intended for authorized security operations only. While the model is trained to be accurate, always validate AI-generated API calls before executing them in a production environment. The authors are not responsible for unintended actions performed by the agent against live Microsoft Defender XDR tenants.
+
+## Contributing
+
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+### Areas for Contribution
+- Additional security API endpoints
+- Improved prompt templates
+- Evaluation benchmarks
+- Documentation improvements
+- Bug fixes
+
+## Security
+
+For security concerns, please see [SECURITY.md](SECURITY.md).
 
 ## License
 
@@ -459,20 +343,16 @@ MIT License - see [LICENSE](LICENSE) for details.
 ## Citation
 
 ```bibtex
-@misc{msgraph-tool-agent-8b,
-  title={msgraph-tool-agent-8b: Enterprise Tool-Calling Agent for Microsoft Graph},
+@misc{defender-api-tool,
+  title={DefenderApi-Tool: Enterprise Security Tool-Calling Agent for Microsoft Defender XDR},
   author={ftrout},
   year={2025},
-  url={https://github.com/ftrout/msgraph-tool-agent-8b}
+  url={https://github.com/ftrout/defender-api-tool}
 }
 ```
 
-## Contributing
+## Acknowledgments
 
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+- [NousResearch](https://huggingface.co/NousResearch) for Hermes-3-Llama-3.1-8B
+- [Microsoft](https://github.com/microsoftgraph) for Graph Security API specifications
+- [Hugging Face](https://huggingface.co) for transformers, PEFT, and TRL libraries

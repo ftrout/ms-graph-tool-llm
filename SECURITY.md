@@ -9,7 +9,7 @@
 
 ## Reporting a Vulnerability
 
-We take the security of msgraph-tool-agent-8b seriously. If you discover a security vulnerability, please report it responsibly.
+We take the security of DefenderApi-Tool seriously. If you discover a security vulnerability, please report it responsibly.
 
 ### How to Report
 
@@ -37,6 +37,7 @@ The following are in scope for security reports:
 - Prompt injection attacks that bypass safety measures
 - Dependency vulnerabilities
 - Authentication/authorization bypasses
+- Misuse of security-related API calls
 
 ### Out of Scope
 
@@ -47,16 +48,28 @@ The following are in scope for security reports:
 
 ## Security Best Practices for Users
 
-When using msgraph-tool-agent-8b:
+When using DefenderApi-Tool:
 
 1. **Validate all outputs**: Never execute generated API calls without human review
 2. **Use minimal permissions**: Configure OAuth scopes with least privilege
-3. **Protect credentials**: Never include API keys or tokens in prompts
+3. **Protect credentials**: Never include API keys, tokens, or sensitive security data in prompts
 4. **Sanitize inputs**: Validate user inputs before passing to the model
 5. **Monitor usage**: Log and audit all API calls made through the agent
+6. **Human oversight**: Always maintain human oversight for security-critical operations
+7. **Test in isolation**: Test generated tool calls in non-production environments first
 
 ## Security Features
 
 - The model generates JSON payloads only; it does not execute API calls
 - All generated outputs should be validated before execution
 - The package does not store or transmit credentials
+- Security-focused design with SOC operations in mind
+
+## Responsible Use
+
+This tool is designed for **authorized security operations only**. Users are responsible for:
+
+- Ensuring proper authorization for Defender XDR API access
+- Validating all generated tool calls before execution
+- Maintaining compliance with organizational security policies
+- Not using the tool for malicious purposes

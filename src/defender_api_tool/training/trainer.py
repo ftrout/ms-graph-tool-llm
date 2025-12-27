@@ -1,7 +1,7 @@
 """
-Training pipeline for msgraph-tool-agent-8b.
+Training pipeline for defender-api-tool.
 
-Fine-tunes LLMs using QLoRA for Microsoft Graph API tool calling.
+Fine-tunes LLMs using QLoRA for Microsoft Defender XDR API tool calling.
 """
 
 import os
@@ -19,21 +19,22 @@ from transformers import (
 )
 from trl import SFTConfig, SFTTrainer
 
-from msgraph_tool_agent_8b.utils.config import ModelConfig, TrainingConfig
-from msgraph_tool_agent_8b.utils.logging import get_logger
+from defender_api_tool.utils.config import ModelConfig, TrainingConfig
+from defender_api_tool.utils.logging import get_logger
 
 logger = get_logger("training.trainer")
 
-# System prompt for the agent
+# System prompt for security operations
 SYSTEM_PROMPT = (
-    "You are an AI Agent for Microsoft Graph. Given the user request and "
-    "the available tool definition, generate the correct JSON tool call."
+    "You are a Security Operations AI Agent for Microsoft Defender XDR. "
+    "Given the user request and the available tool definition, generate the "
+    "correct JSON tool call for security analysis, incident response, or threat hunting."
 )
 
 
-class GraphToolTrainer:
+class DefenderToolTrainer:
     """
-    Trainer for fine-tuning LLMs on Microsoft Graph tool calling.
+    Trainer for fine-tuning LLMs on Microsoft Defender XDR tool calling.
 
     Uses QLoRA (Quantized LoRA) for efficient fine-tuning on consumer hardware.
 
@@ -42,10 +43,10 @@ class GraphToolTrainer:
         training_config: Configuration for training parameters
 
     Example:
-        >>> trainer = GraphToolTrainer()
+        >>> trainer = DefenderToolTrainer()
         >>> trainer.train(
-        ...     data_file="./data/graph_tool_dataset.jsonl",
-        ...     output_name="msgraph-tool-agent-8b"
+        ...     data_file="./data/defender_tool_dataset.jsonl",
+        ...     output_name="defender-api-tool"
         ... )
     """
 
@@ -66,7 +67,7 @@ class GraphToolTrainer:
         self.model: PreTrainedModel | None = None
         self.tokenizer: PreTrainedTokenizer | None = None
         logger.info(
-            "Initialized GraphToolTrainer with base model: %s",
+            "Initialized DefenderToolTrainer with base model: %s",
             self.model_config.base_model_id,
         )
 
@@ -204,8 +205,8 @@ class GraphToolTrainer:
 
     def train(
         self,
-        data_file: str = "./data/graph_tool_dataset.jsonl",
-        output_name: str = "msgraph-tool-agent-8b",
+        data_file: str = "./data/defender_tool_dataset.jsonl",
+        output_name: str = "defender-api-tool",
         push_to_hub: bool = False,
         hub_model_id: str | None = None,
     ) -> str:
@@ -331,10 +332,14 @@ class GraphToolTrainer:
         self.tokenizer.save_pretrained(output_name)
 
         # Save model config
-        self.model_config.save(os.path.join(output_name, "msgraph_config.json"))
+        self.model_config.save(os.path.join(output_name, "defender_config.json"))
 
         logger.info("Training complete! Model saved to %s", output_name)
         return output_name
+
+
+# Backward compatibility alias
+GraphToolTrainer = DefenderToolTrainer
 
 
 def main() -> None:
@@ -342,7 +347,7 @@ def main() -> None:
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Fine-tune LLM for Microsoft Graph tool calling"
+        description="Fine-tune LLM for Microsoft Defender XDR tool calling"
     )
     parser.add_argument(
         "--model-id",
@@ -353,13 +358,13 @@ def main() -> None:
     parser.add_argument(
         "--output-name",
         type=str,
-        default="msgraph-tool-agent-8b",
+        default="defender-api-tool",
         help="Output adapter directory name",
     )
     parser.add_argument(
         "--data-file",
         type=str,
-        default="./data/graph_tool_dataset.jsonl",
+        default="./data/defender_tool_dataset.jsonl",
         help="Path to training dataset",
     )
     parser.add_argument(
@@ -415,7 +420,7 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    from msgraph_tool_agent_8b.utils.logging import setup_logging
+    from defender_api_tool.utils.logging import setup_logging
 
     setup_logging()
 
@@ -437,7 +442,7 @@ def main() -> None:
         run_name=args.run_name,
     )
 
-    trainer = GraphToolTrainer(
+    trainer = DefenderToolTrainer(
         model_config=model_config, training_config=training_config
     )
     trainer.train(

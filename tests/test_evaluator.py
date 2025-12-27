@@ -2,9 +2,9 @@
 
 import pytest
 
-from msgraph_tool_agent_8b.evaluation.evaluator import (
+from defender_api_tool.evaluation.evaluator import (
+    DefenderToolEvaluator,
     EvaluationMetrics,
-    GraphToolEvaluator,
 )
 
 
@@ -69,19 +69,19 @@ class TestEvaluationMetrics:
         assert "90" in result
 
 
-class TestGraphToolEvaluator:
-    """Test suite for GraphToolEvaluator."""
+class TestDefenderToolEvaluator:
+    """Test suite for DefenderToolEvaluator."""
 
     def test_init_default_values(self):
         """Test initialization with default values."""
-        evaluator = GraphToolEvaluator()
+        evaluator = DefenderToolEvaluator()
         assert evaluator.base_model_id == "NousResearch/Hermes-3-Llama-3.1-8B"
         assert evaluator.adapter_path is None
         assert evaluator.model is None
 
     def test_init_custom_values(self):
         """Test initialization with custom values."""
-        evaluator = GraphToolEvaluator(
+        evaluator = DefenderToolEvaluator(
             base_model_id="custom/model", adapter_path="./custom-adapter"
         )
         assert evaluator.base_model_id == "custom/model"
@@ -90,7 +90,7 @@ class TestGraphToolEvaluator:
     def test_validate_json_valid(self):
         """Test JSON validation with valid JSON."""
         valid_json = '{"name": "test", "value": 123}'
-        is_valid, parsed = GraphToolEvaluator.validate_json(valid_json)
+        is_valid, parsed = DefenderToolEvaluator.validate_json(valid_json)
 
         assert is_valid is True
         assert parsed == {"name": "test", "value": 123}
@@ -98,29 +98,29 @@ class TestGraphToolEvaluator:
     def test_validate_json_invalid(self):
         """Test JSON validation with invalid JSON."""
         invalid_json = '{"name": "test", value: 123}'  # Missing quotes
-        is_valid, parsed = GraphToolEvaluator.validate_json(invalid_json)
+        is_valid, parsed = DefenderToolEvaluator.validate_json(invalid_json)
 
         assert is_valid is False
         assert parsed is None
 
     def test_validate_json_empty(self):
         """Test JSON validation with empty string."""
-        is_valid, parsed = GraphToolEvaluator.validate_json("")
+        is_valid, parsed = DefenderToolEvaluator.validate_json("")
         assert is_valid is False
         assert parsed is None
 
     def test_compare_tool_calls_matching(self):
-        """Test tool call comparison with matching calls."""
+        """Test tool call comparison with matching security calls."""
         generated = {
-            "name": "users_ListUsers",
-            "arguments": {"$filter": "test", "$select": "id"},
+            "name": "security_alerts_list",
+            "arguments": {"$filter": "severity eq 'high'", "$top": 50},
         }
         expected = {
-            "name": "users_ListUsers",
-            "arguments": {"$filter": "test", "$select": "id"},
+            "name": "security_alerts_list",
+            "arguments": {"$filter": "severity eq 'high'", "$top": 50},
         }
 
-        name_match, args_match = GraphToolEvaluator.compare_tool_calls(
+        name_match, args_match = DefenderToolEvaluator.compare_tool_calls(
             generated, expected
         )
 
@@ -129,10 +129,10 @@ class TestGraphToolEvaluator:
 
     def test_compare_tool_calls_different_name(self):
         """Test tool call comparison with different names."""
-        generated = {"name": "users_GetUser", "arguments": {}}
-        expected = {"name": "users_ListUsers", "arguments": {}}
+        generated = {"name": "security_alerts_get", "arguments": {}}
+        expected = {"name": "security_alerts_list", "arguments": {}}
 
-        name_match, args_match = GraphToolEvaluator.compare_tool_calls(
+        name_match, args_match = DefenderToolEvaluator.compare_tool_calls(
             generated, expected
         )
 
@@ -140,13 +140,13 @@ class TestGraphToolEvaluator:
 
     def test_compare_tool_calls_missing_argument(self):
         """Test tool call comparison with missing argument."""
-        generated = {"name": "users_ListUsers", "arguments": {"$filter": "test"}}
+        generated = {"name": "security_alerts_list", "arguments": {"$filter": "test"}}
         expected = {
-            "name": "users_ListUsers",
-            "arguments": {"$filter": "test", "$select": "id"},
+            "name": "security_alerts_list",
+            "arguments": {"$filter": "test", "$top": 50},
         }
 
-        name_match, args_match = GraphToolEvaluator.compare_tool_calls(
+        name_match, args_match = DefenderToolEvaluator.compare_tool_calls(
             generated, expected
         )
 
@@ -156,12 +156,12 @@ class TestGraphToolEvaluator:
     def test_compare_tool_calls_type_mismatch(self):
         """Test tool call comparison with type mismatch."""
         generated = {
-            "name": "users_ListUsers",
+            "name": "security_alerts_list",
             "arguments": {"items": "string"},  # Should be array
         }
-        expected = {"name": "users_ListUsers", "arguments": {"items": ["a", "b"]}}
+        expected = {"name": "security_alerts_list", "arguments": {"items": ["a", "b"]}}
 
-        name_match, args_match = GraphToolEvaluator.compare_tool_calls(
+        name_match, args_match = DefenderToolEvaluator.compare_tool_calls(
             generated, expected
         )
 
@@ -189,5 +189,5 @@ class TestJSONValidation:
     )
     def test_various_json_inputs(self, json_str, expected_valid):
         """Test JSON validation with various inputs."""
-        is_valid, _ = GraphToolEvaluator.validate_json(json_str)
+        is_valid, _ = DefenderToolEvaluator.validate_json(json_str)
         assert is_valid == expected_valid
