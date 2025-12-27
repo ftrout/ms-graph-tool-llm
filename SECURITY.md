@@ -9,7 +9,7 @@
 
 ## Reporting a Vulnerability
 
-We take the security of DefenderApi-Tool seriously. If you discover a security vulnerability, please report it responsibly.
+We take the security of SecurityGraph-Agent seriously. If you discover a security vulnerability, please report it responsibly.
 
 ### How to Report
 
@@ -48,7 +48,7 @@ The following are in scope for security reports:
 
 ## Security Best Practices for Users
 
-When using DefenderApi-Tool:
+When using SecurityGraph-Agent:
 
 1. **Validate all outputs**: Never execute generated API calls without human review
 2. **Use minimal permissions**: Configure OAuth scopes with least privilege

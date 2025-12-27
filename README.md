@@ -1,12 +1,12 @@
-# DefenderApi-Tool
+# SecurityGraph-Agent
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-**Enterprise-Grade Security Tool-Calling Agent for Microsoft Defender XDR**
+**Enterprise-Grade Security Tool-Calling Agent for Microsoft Security Graph API**
 
-A specialized LLM fine-tuning pipeline that trains models to convert natural language security requests into precise, schema-validated JSON tool calls for the Microsoft Defender XDR API. Designed for Security Operations Centers (SOC), incident response, and threat hunting workflows.
+A specialized LLM fine-tuning pipeline that trains models to convert natural language security requests into precise, schema-validated JSON tool calls for the Microsoft Security Graph API. Designed for Security Operations Centers (SOC), incident response, and threat hunting workflows.
 
 ## Key Features
 
@@ -35,21 +35,21 @@ A specialized LLM fine-tuning pipeline that trains models to convert natural lan
 
 ```bash
 # With pip
-pip install defender-api-tool
+pip install securitygraph-agent
 
 # With demo UI
-pip install 'defender-api-tool[demo]'
+pip install 'securitygraph-agent[demo]'
 
 # For development
-pip install 'defender-api-tool[dev]'
+pip install 'securitygraph-agent[dev]'
 ```
 
 ### Docker (Recommended for Training)
 
 ```bash
 # Clone the repository
-git clone https://github.com/ftrout/defender-api-tool.git
-cd defender-api-tool
+git clone https://github.com/ftrout/securitygraph-agent.git
+cd securitygraph-agent
 
 # Start dev container with GPU support
 docker run --gpus all -it --rm \
@@ -65,10 +65,10 @@ docker run --gpus all -it --rm \
 from defender_api_tool import DefenderApiAgent
 
 # Load a trained agent
-agent = DefenderApiAgent.from_pretrained("./defender-api-tool")
+agent = DefenderApiAgent.from_pretrained("./securitygraph-agent")
 
 # Or from Hugging Face Hub
-agent = DefenderApiAgent.from_hub("ftrout/defender-api-tool")
+agent = DefenderApiAgent.from_hub("ftrout/securitygraph-agent")
 
 # Define a security tool
 alert_tool = {
@@ -101,16 +101,16 @@ print(result)
 
 ```bash
 # Generate security-focused training data from Microsoft Graph Security API
-defender-harvest --output-dir ./data
+secgraph-harvest --output-dir ./data
 ```
 
 ### Stage 2: Fine-tune the Model
 
 ```bash
 # Train with QLoRA (requires ~16GB VRAM)
-defender-train \
+secgraph-train \
   --data-file ./data/defender_tool_dataset.jsonl \
-  --output-name defender-api-tool \
+  --output-name securitygraph-agent \
   --epochs 3
 ```
 
@@ -118,8 +118,8 @@ defender-train \
 
 ```bash
 # Run evaluation
-defender-evaluate \
-  --adapter-path ./defender-api-tool \
+secgraph-evaluate \
+  --adapter-path ./securitygraph-agent \
   --data-file ./data/test_dataset.jsonl
 ```
 
@@ -127,10 +127,10 @@ defender-evaluate \
 
 ```bash
 # CLI interface
-defender-agent --adapter-path ./defender-api-tool
+secgraph-agent --adapter-path ./securitygraph-agent
 
 # Gradio web UI
-python demo.py --adapter-path ./defender-api-tool
+python demo.py --adapter-path ./securitygraph-agent
 ```
 
 ## Model Architecture
@@ -165,17 +165,17 @@ python demo.py --adapter-path ./defender-api-tool
 
 | Command | Description |
 |---------|-------------|
-| `defender-harvest` | Generate training data from Security API spec |
-| `defender-train` | Fine-tune the model with QLoRA |
-| `defender-evaluate` | Evaluate model performance |
-| `defender-agent` | Interactive CLI for testing |
-| `defender-upload` | Upload model to Hugging Face Hub |
-| `defender-upload-dataset` | Upload dataset to Hugging Face Hub |
+| `secgraph-harvest` | Generate training data from Security API spec |
+| `secgraph-train` | Fine-tune the model with QLoRA |
+| `secgraph-evaluate` | Evaluate model performance |
+| `secgraph-agent` | Interactive CLI for testing |
+| `secgraph-upload` | Upload model to Hugging Face Hub |
+| `secgraph-upload-dataset` | Upload dataset to Hugging Face Hub |
 
 ## Project Structure
 
 ```
-defender-api-tool/
+securitygraph-agent/
 ├── src/
 │   └── defender_api_tool/
 │       ├── __init__.py           # Package exports
@@ -205,8 +205,8 @@ defender-api-tool/
 
 ```bash
 # Clone and install
-git clone https://github.com/ftrout/defender-api-tool.git
-cd defender-api-tool
+git clone https://github.com/ftrout/securitygraph-agent.git
+cd securitygraph-agent
 pip install -e '.[dev]'
 
 # Install pre-commit hooks
@@ -247,7 +247,7 @@ pytest tests -v
 
 ```python
 class DefenderApiAgent:
-    """Microsoft Defender XDR API tool-calling agent."""
+    """Microsoft Security Graph API tool-calling agent."""
 
     @classmethod
     def from_pretrained(cls, adapter_path: str, ...) -> "DefenderApiAgent":
@@ -272,7 +272,7 @@ class DefenderApiAgent:
 
 ```python
 class DefenderAPIHarvester:
-    """Harvests Microsoft Defender XDR API specifications for training."""
+    """Harvests Microsoft Security Graph API specifications for training."""
 
     def harvest(
         self,
@@ -286,7 +286,7 @@ class DefenderAPIHarvester:
 
 ```python
 class DefenderToolTrainer:
-    """Trainer for fine-tuning LLMs on Defender XDR tool calling."""
+    """Trainer for fine-tuning LLMs on Security Graph tool calling."""
 
     def train(
         self,
@@ -302,7 +302,7 @@ class DefenderToolTrainer:
 
 ```python
 class DefenderToolEvaluator:
-    """Evaluator for Defender XDR tool-calling models."""
+    """Evaluator for Security Graph tool-calling models."""
 
     def evaluate_dataset(
         self,
@@ -319,7 +319,7 @@ class DefenderToolEvaluator:
 
 ## Disclaimer
 
-This tool is intended for authorized security operations only. While the model is trained to be accurate, always validate AI-generated API calls before executing them in a production environment. The authors are not responsible for unintended actions performed by the agent against live Microsoft Defender XDR tenants.
+This tool is intended for authorized security operations only. While the model is trained to be accurate, always validate AI-generated API calls before executing them in a production environment. The authors are not responsible for unintended actions performed by the agent against live Microsoft Security Graph tenants.
 
 ## Contributing
 
@@ -343,16 +343,16 @@ MIT License - see [LICENSE](LICENSE) for details.
 ## Citation
 
 ```bibtex
-@misc{defender-api-tool,
-  title={DefenderApi-Tool: Enterprise Security Tool-Calling Agent for Microsoft Defender XDR},
+@misc{securitygraph-agent,
+  title={SecurityGraph-Agent: Enterprise Security Tool-Calling Agent for Microsoft Security Graph},
   author={ftrout},
   year={2025},
-  url={https://github.com/ftrout/defender-api-tool}
+  url={https://github.com/ftrout/securitygraph-agent}
 }
 ```
 
 ## Acknowledgments
 
 - [NousResearch](https://huggingface.co/NousResearch) for Hermes-3-Llama-3.1-8B
-- [Microsoft](https://github.com/microsoftgraph) for Graph Security API specifications
+- [Microsoft](https://github.com/microsoftgraph) for Security Graph API specifications
 - [Hugging Face](https://huggingface.co) for transformers, PEFT, and TRL libraries

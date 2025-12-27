@@ -1,5 +1,5 @@
 """
-Hugging Face Hub integration for defender-api-tool.
+Hugging Face Hub integration for SecurityGraph-Agent.
 
 Provides functionality for uploading trained security models and datasets to the Hugging Face Hub.
 """
@@ -237,11 +237,11 @@ The training set includes security-focused endpoints:
 ## Citation
 
 ```bibtex
-@misc{{defender-api-tool,
-  title={{DefenderApi-Tool: Enterprise Security Tool-Calling Agent for Microsoft Defender XDR}},
+@misc{{securitygraph-agent,
+  title={{SecurityGraph-Agent: Enterprise Security Tool-Calling Agent for Microsoft Security Graph}},
   author={{ftrout}},
   year={{2025}},
-  url={{https://github.com/ftrout/defender-api-tool}}
+  url={{https://github.com/ftrout/securitygraph-agent}}
 }}
 ```
 
@@ -347,16 +347,16 @@ from datasets import load_dataset
 dataset = load_dataset("{repo_id}")
 ```
 
-### Training with defender-api-tool
+### Training with SecurityGraph-Agent
 
 ```bash
-pip install defender-api-tool
+pip install securitygraph-agent
 
 # Download and generate fresh data
-defender-harvest --output-dir ./data
+secgraph-harvest --output-dir ./data
 
 # Train a model
-defender-train --data-file ./data/defender_tool_dataset.jsonl
+secgraph-train --data-file ./data/defender_tool_dataset.jsonl
 ```
 
 ## Considerations
@@ -381,11 +381,11 @@ defender-train --data-file ./data/defender_tool_dataset.jsonl
 ## Citation
 
 ```bibtex
-@misc{{defender-tool-dataset,
-  title={{Microsoft Defender XDR Tool-Calling Dataset}},
+@misc{{securitygraph-dataset,
+  title={{Microsoft Security Graph Tool-Calling Dataset}},
   author={{ftrout}},
   year={{2025}},
-  url={{https://github.com/ftrout/defender-api-tool}}
+  url={{https://github.com/ftrout/securitygraph-agent}}
 }}
 ```
 
@@ -468,7 +468,7 @@ def upload_to_hub(
     repo_id: str,
     base_model: str = "NousResearch/Hermes-3-Llama-3.1-8B",
     private: bool = False,
-    commit_message: str = "Upload defender-api-tool adapter",
+    commit_message: str = "Upload securitygraph-agent adapter",
     create_model_card_file: bool = True,
 ) -> str:
     """
@@ -560,7 +560,7 @@ def upload_dataset_to_hub(
     dataset_path: str,
     repo_id: str,
     private: bool = False,
-    commit_message: str = "Upload defender-api-tool training dataset",
+    commit_message: str = "Upload securitygraph-agent training dataset",
     create_dataset_card_file: bool = True,
 ) -> str:
     """
@@ -678,7 +678,7 @@ def main() -> None:
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Upload trained defender-api-tool to Hugging Face Hub"
+        description="Upload trained SecurityGraph-Agent to Hugging Face Hub"
     )
     parser.add_argument(
         "adapter_path", type=str, help="Path to the trained adapter directory"
@@ -700,7 +700,7 @@ def main() -> None:
     parser.add_argument(
         "--commit-message",
         type=str,
-        default="Upload defender-api-tool adapter",
+        default="Upload securitygraph-agent adapter",
         help="Commit message for the upload",
     )
     parser.add_argument(
@@ -734,7 +734,7 @@ def dataset_main() -> None:
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Upload defender-api-tool dataset to Hugging Face Hub"
+        description="Upload SecurityGraph-Agent dataset to Hugging Face Hub"
     )
     parser.add_argument(
         "dataset_path", type=str, help="Path to the dataset file (JSONL) or directory"
@@ -750,7 +750,7 @@ def dataset_main() -> None:
     parser.add_argument(
         "--commit-message",
         type=str,
-        default="Upload defender-api-tool training dataset",
+        default="Upload securitygraph-agent training dataset",
         help="Commit message for the upload",
     )
     parser.add_argument(

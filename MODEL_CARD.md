@@ -1,10 +1,10 @@
-# DefenderApi-Tool Model Card
+# SecurityGraph-Agent Model Card
 
 ## Model Details
 
 ### Model Description
 
-**DefenderApi-Tool** is an enterprise-grade security tool-calling language model fine-tuned for Microsoft Defender XDR API operations. It converts natural language security requests into precise, schema-validated JSON tool calls for Security Operations Center (SOC) workflows.
+**SecurityGraph-Agent** is an enterprise-grade security tool-calling language model fine-tuned for Microsoft Security Graph API operations. It converts natural language security requests into precise, schema-validated JSON tool calls for Security Operations Center (SOC) workflows.
 
 - **Model Type**: LoRA (Low-Rank Adaptation) adapter
 - **Base Model**: [NousResearch/Hermes-3-Llama-3.1-8B](https://huggingface.co/NousResearch/Hermes-3-Llama-3.1-8B)
@@ -14,7 +14,7 @@
 
 ### Model Sources
 
-- **Repository**: [github.com/ftrout/defender-api-tool](https://github.com/ftrout/defender-api-tool)
+- **Repository**: [github.com/ftrout/securitygraph-agent](https://github.com/ftrout/securitygraph-agent)
 - **Related Projects**: [kodiak-secops-1](https://github.com/ftrout/kodiak-secops-1)
 
 ## Uses
@@ -22,7 +22,7 @@
 ### Direct Use
 
 This model is designed for:
-- Converting natural language security requests into Defender XDR API tool calls
+- Converting natural language security requests into Security Graph API tool calls
 - Assisting SOC analysts with alert triage and incident response
 - Enabling threat hunting through natural language queries
 - Generating properly formatted JSON payloads for security operations
@@ -57,7 +57,7 @@ The model can be integrated into:
 
 ### Technical Limitations
 
-- Specialized for Microsoft Defender XDR API endpoints only
+- Specialized for Microsoft Security Graph API endpoints only
 - Requires correct tool definition to be provided in the prompt
 - Not suitable for conversational use outside of tool calling context
 - May not generalize to other security APIs
@@ -75,7 +75,7 @@ The model can be integrated into:
 
 - Always validate generated tool calls before execution
 - Maintain human oversight for all security-critical operations
-- Use proper authentication and authorization with Defender XDR
+- Use proper authentication and authorization with Security Graph
 - Do not include sensitive security data or indicators in prompts
 
 ## Training Details
@@ -139,15 +139,15 @@ Carbon emissions estimated using the [ML CO2 Impact calculator](https://mlco2.gi
 ## Citation
 
 ```bibtex
-@misc{defender-api-tool,
-  title={DefenderApi-Tool: Enterprise Security Tool-Calling Agent for Microsoft Defender XDR},
+@misc{securitygraph-agent,
+  title={SecurityGraph-Agent: Enterprise Security Tool-Calling Agent for Microsoft Security Graph},
   author={ftrout},
   year={2025},
-  url={https://github.com/ftrout/defender-api-tool}
+  url={https://github.com/ftrout/securitygraph-agent}
 }
 ```
 
 ## Model Card Contact
 
 For questions, issues, or contributions, please visit:
-- GitHub Issues: [github.com/ftrout/defender-api-tool/issues](https://github.com/ftrout/defender-api-tool/issues)
+- GitHub Issues: [github.com/ftrout/securitygraph-agent/issues](https://github.com/ftrout/securitygraph-agent/issues)

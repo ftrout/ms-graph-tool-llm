@@ -1,8 +1,8 @@
 """
-Gradio demo for Defender API Tool Agent.
+Gradio demo for SecurityGraph-Agent.
 
 Run with:
-    python demo.py                              # Load from local ./defender-api-tool
+    python demo.py                              # Load from local ./securitygraph-agent
     python demo.py --adapter-path ./my-adapter  # Load from custom local path
     python demo.py --from-hub username/model    # Load from Hugging Face Hub
     python demo.py --share                      # Create public share link
@@ -17,7 +17,7 @@ import sys
 try:
     import gradio as gr
 except ImportError:
-    print("Gradio is not installed. Install with: pip install 'defender-api-tool[demo]'")
+    print("Gradio is not installed. Install with: pip install 'securitygraph-agent[demo]'")
     sys.exit(1)
 
 from defender_api_tool.inference.agent import COMMON_TOOLS, DefenderApiAgent
@@ -40,13 +40,13 @@ def load_agent(
         if not os.path.exists(adapter_path):
             raise FileNotFoundError(
                 f"Adapter not found at '{adapter_path}'. "
-                "Train a model first with 'defender-train' or specify --from-hub to load from Hub."
+                "Train a model first with 'secgraph-train' or specify --from-hub to load from Hub."
             )
         print(f"Loading model from: {adapter_path}")
         return DefenderApiAgent.from_pretrained(adapter_path)
     else:
         # Default local path
-        default_path = "./defender-api-tool"
+        default_path = "./securitygraph-agent"
         if os.path.exists(default_path):
             print(f"Loading model from: {default_path}")
             return DefenderApiAgent.from_pretrained(default_path)
@@ -114,17 +114,17 @@ def create_demo() -> gr.Interface:
             ),
         ],
         outputs=gr.Code(label="Generated Tool Call", language="json"),
-        title="Defender XDR Security Agent Demo",
+        title="SecurityGraph-Agent Demo",
         description=(
-            "Convert natural language security requests into Microsoft Defender XDR API tool calls. "
+            "Convert natural language security requests into Microsoft Security Graph API tool calls. "
             "Select a security tool and enter your request in plain English."
         ),
         examples=EXAMPLES,
         theme=gr.themes.Soft(),
         article=(
             "### About\n"
-            "This demo uses a fine-tuned language model to generate JSON tool calls "
-            "for the Microsoft Defender XDR API. The model was trained using QLoRA on the "
+            "This demo uses SecurityGraph-Agent, a fine-tuned language model to generate JSON tool calls "
+            "for the Microsoft Security Graph API. The model was trained using QLoRA on the "
             "Hermes 3 Llama 3.1 8B base model, specialized for security operations.\n\n"
             "**Use Cases**: Alert triage, incident response, threat hunting, security posture assessment.\n\n"
             "**Note**: Generated tool calls should always be validated before execution in production."
@@ -137,13 +137,13 @@ def main() -> None:
     global agent
 
     parser = argparse.ArgumentParser(
-        description="Launch the Defender XDR Security Agent Gradio demo",
+        description="Launch the SecurityGraph-Agent Gradio demo",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python demo.py                              # Load from ./defender-api-tool
+  python demo.py                              # Load from ./securitygraph-agent
   python demo.py --adapter-path ./my-model    # Load from custom path
-  python demo.py --from-hub ftrout/defender-api-tool  # Load from Hub
+  python demo.py --from-hub ftrout/securitygraph-agent  # Load from Hub
   python demo.py --share                      # Create public share link
         """,
     )

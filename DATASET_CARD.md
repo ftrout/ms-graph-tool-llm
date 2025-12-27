@@ -1,12 +1,12 @@
-# Defender XDR Tool-Calling Dataset
+# SecurityGraph Tool-Calling Dataset
 
 ## Dataset Description
 
-A synthetic dataset for training security tool-calling language models on Microsoft Defender XDR API operations. Each example pairs a natural language security request with the corresponding JSON tool call.
+A synthetic dataset for training security tool-calling language models on Microsoft Security Graph API operations. Each example pairs a natural language security request with the corresponding JSON tool call.
 
 ### Dataset Summary
 
-- **Source**: Microsoft Graph Security API / Defender XDR specification
+- **Source**: Microsoft Graph Security API specification
 - **Format**: JSONL with instruction/input/output fields
 - **Language**: English
 - **Domain**: Security Operations, Incident Response, Threat Hunting
@@ -46,7 +46,7 @@ English
 
 ### Curation Rationale
 
-This dataset was created to train language models for security-focused tool calling with the Microsoft Defender XDR API. The synthetic approach ensures diverse prompt templates while maintaining consistent, valid JSON outputs.
+This dataset was created to train language models for security-focused tool calling with the Microsoft Security Graph API. The synthetic approach ensures diverse prompt templates while maintaining consistent, valid JSON outputs.
 
 ### Source Data
 
@@ -89,7 +89,7 @@ This dataset enables:
 
 ### Discussion of Biases
 
-- Dataset reflects the structure of Microsoft Defender XDR API
+- Dataset reflects the structure of Microsoft Security Graph API
 - Synthetic prompts may not capture all real-world security phrasings
 - Security-specific terminology may vary by organization
 - Focused on English language only
@@ -120,18 +120,18 @@ MIT License
 ### Citation
 
 ```bibtex
-@misc{defender-tool-dataset,
-  title={Microsoft Defender XDR Tool-Calling Dataset},
+@misc{securitygraph-dataset,
+  title={Microsoft Security Graph Tool-Calling Dataset},
   author={ftrout},
   year={2025},
-  url={https://github.com/ftrout/defender-api-tool}
+  url={https://github.com/ftrout/securitygraph-agent}
 }
 ```
 
 ### Related Projects
 
 - [kodiak-secops-1](https://github.com/ftrout/kodiak-secops-1) - SOC alert triage model
-- [defender-api-tool](https://github.com/ftrout/defender-api-tool) - Security tool-calling agent
+- [securitygraph-agent](https://github.com/ftrout/securitygraph-agent) - Security tool-calling agent
 
 ### Contributions
 

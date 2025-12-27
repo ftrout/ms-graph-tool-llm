@@ -1,6 +1,6 @@
-# Contributing to DefenderApi-Tool
+# Contributing to SecurityGraph-Agent
 
-Thank you for your interest in contributing to DefenderApi-Tool! This document provides guidelines and information for contributors.
+Thank you for your interest in contributing to SecurityGraph-Agent! This document provides guidelines and information for contributors.
 
 ## Getting Started
 
@@ -9,8 +9,8 @@ Thank you for your interest in contributing to DefenderApi-Tool! This document p
 1. **Fork and clone the repository**
 
    ```bash
-   git clone https://github.com/YOUR_USERNAME/defender-api-tool
-   cd defender-api-tool
+   git clone https://github.com/YOUR_USERNAME/securitygraph-agent
+   cd securitygraph-agent
    ```
 
 2. **Set up the development environment**

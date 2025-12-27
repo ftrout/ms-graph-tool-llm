@@ -3,9 +3,9 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "defender-api-tool"
+name = "securitygraph-agent"
 version = "1.0.0"
-description = "Enterprise-grade security tool-calling LLM for Microsoft Defender XDR API"
+description = "Enterprise-grade security tool-calling LLM for Microsoft Security Graph API"
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
@@ -18,6 +18,7 @@ keywords = [
     "llm",
     "microsoft-defender",
     "defender-xdr",
+    "security-graph",
     "security",
     "soc",
     "tool-calling",
@@ -78,23 +79,23 @@ docs = [
     "myst-parser>=2.0.0",
 ]
 all = [
-    "defender-api-tool[dev,docs,demo]",
+    "securitygraph-agent[dev,docs,demo]",
 ]
 
 [project.urls]
-Homepage = "https://github.com/ftrout/defender-api-tool"
-Documentation = "https://github.com/ftrout/defender-api-tool#readme"
-Repository = "https://github.com/ftrout/defender-api-tool.git"
-Issues = "https://github.com/ftrout/defender-api-tool/issues"
-Changelog = "https://github.com/ftrout/defender-api-tool/releases"
+Homepage = "https://github.com/ftrout/securitygraph-agent"
+Documentation = "https://github.com/ftrout/securitygraph-agent#readme"
+Repository = "https://github.com/ftrout/securitygraph-agent.git"
+Issues = "https://github.com/ftrout/securitygraph-agent/issues"
+Changelog = "https://github.com/ftrout/securitygraph-agent/releases"
 
 [project.scripts]
-defender-harvest = "defender_api_tool.data.harvester:main"
-defender-train = "defender_api_tool.training.trainer:main"
-defender-evaluate = "defender_api_tool.evaluation.evaluator:main"
-defender-agent = "defender_api_tool.inference.agent:main"
-defender-upload = "defender_api_tool.hub:main"
-defender-upload-dataset = "defender_api_tool.hub:dataset_main"
+secgraph-harvest = "defender_api_tool.data.harvester:main"
+secgraph-train = "defender_api_tool.training.trainer:main"
+secgraph-evaluate = "defender_api_tool.evaluation.evaluator:main"
+secgraph-agent = "defender_api_tool.inference.agent:main"
+secgraph-upload = "defender_api_tool.hub:main"
+secgraph-upload-dataset = "defender_api_tool.hub:dataset_main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/defender_api_tool"]
