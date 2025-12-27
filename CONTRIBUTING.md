@@ -9,8 +9,8 @@ Thank you for your interest in contributing to SecurityGraph-Agent! This documen
 1. **Fork and clone the repository**
 
    ```bash
-   git clone https://github.com/YOUR_USERNAME/securitygraph-agent
-   cd securitygraph-agent
+   git clone https://github.com/YOUR_USERNAME/SecurityGraph-Agent
+   cd SecurityGraph-Agent
    ```
 
 2. **Set up the development environment**

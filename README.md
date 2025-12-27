@@ -48,8 +48,8 @@ pip install 'securitygraph-agent[dev]'
 
 ```bash
 # Clone the repository
-git clone https://github.com/ftrout/securitygraph-agent.git
-cd securitygraph-agent
+git clone https://github.com/ftrout/SecurityGraph-Agent.git
+cd SecurityGraph-Agent
 
 # Start dev container with GPU support
 docker run --gpus all -it --rm \
@@ -205,8 +205,8 @@ securitygraph-agent/
 
 ```bash
 # Clone and install
-git clone https://github.com/ftrout/securitygraph-agent.git
-cd securitygraph-agent
+git clone https://github.com/ftrout/SecurityGraph-Agent.git
+cd SecurityGraph-Agent
 pip install -e '.[dev]'
 
 # Install pre-commit hooks
@@ -347,7 +347,7 @@ MIT License - see [LICENSE](LICENSE) for details.
   title={SecurityGraph-Agent: Enterprise Security Tool-Calling Agent for Microsoft Security Graph},
   author={ftrout},
   year={2025},
-  url={https://github.com/ftrout/securitygraph-agent}
+  url={https://github.com/ftrout/SecurityGraph-Agent}
 }
 ```
 

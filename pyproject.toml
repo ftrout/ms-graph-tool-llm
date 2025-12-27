@@ -32,7 +32,7 @@ keywords = [
     "incident-response"
 ]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
     "Intended Audience :: Information Technology",
@@ -83,11 +83,11 @@ all = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/ftrout/securitygraph-agent"
-Documentation = "https://github.com/ftrout/securitygraph-agent#readme"
-Repository = "https://github.com/ftrout/securitygraph-agent.git"
-Issues = "https://github.com/ftrout/securitygraph-agent/issues"
-Changelog = "https://github.com/ftrout/securitygraph-agent/releases"
+Homepage = "https://github.com/ftrout/SecurityGraph-Agent"
+Documentation = "https://github.com/ftrout/SecurityGraph-Agent#readme"
+Repository = "https://github.com/ftrout/SecurityGraph-Agent.git"
+Issues = "https://github.com/ftrout/SecurityGraph-Agent/issues"
+Changelog = "https://github.com/ftrout/SecurityGraph-Agent/blob/main/CHANGELOG.md"
 
 [project.scripts]
 secgraph-harvest = "defender_api_tool.data.harvester:main"

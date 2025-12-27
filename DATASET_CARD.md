@@ -124,14 +124,14 @@ MIT License
   title={Microsoft Security Graph Tool-Calling Dataset},
   author={ftrout},
   year={2025},
-  url={https://github.com/ftrout/securitygraph-agent}
+  url={https://github.com/ftrout/SecurityGraph-Agent}
 }
 ```
 
 ### Related Projects
 
 - [kodiak-secops-1](https://github.com/ftrout/kodiak-secops-1) - SOC alert triage model
-- [securitygraph-agent](https://github.com/ftrout/securitygraph-agent) - Security tool-calling agent
+- [SecurityGraph-Agent](https://github.com/ftrout/SecurityGraph-Agent) - Security tool-calling agent
 
 ### Contributions
 
