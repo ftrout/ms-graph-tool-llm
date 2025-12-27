@@ -101,7 +101,9 @@ class TestDefenderAPIHarvester:
         }
 
         args = harvester._generate_example_args(params)
-        assert args["name"] == "example_name"
+        # With randomization, string values follow pattern "example_{name}_{random_int}"
+        assert args["name"].startswith("example_name_")
+        assert args["name"][len("example_name_") :].isdigit()
 
     def test_generate_example_args_integer(self):
         """Test example argument generation for integer types."""
@@ -109,7 +111,9 @@ class TestDefenderAPIHarvester:
         params = {"properties": {"count": {"type": "integer", "description": "Count"}}}
 
         args = harvester._generate_example_args(params)
-        assert args["count"] == 10
+        # With randomization, integers are in range 1-100
+        assert isinstance(args["count"], int)
+        assert 1 <= args["count"] <= 100
 
     def test_generate_example_args_boolean(self):
         """Test example argument generation for boolean types."""
@@ -119,7 +123,8 @@ class TestDefenderAPIHarvester:
         }
 
         args = harvester._generate_example_args(params)
-        assert args["enabled"] is True
+        # With randomization, boolean can be True or False
+        assert isinstance(args["enabled"], bool)
 
     def test_generate_example_args_odata_filter(self):
         """Test example argument generation for OData $filter."""
@@ -129,7 +134,16 @@ class TestDefenderAPIHarvester:
         }
 
         args = harvester._generate_example_args(params)
-        assert "severity" in args["$filter"]
+        # With randomization, filter contains one or more valid OData filter expressions
+        valid_filters = [
+            "severity eq 'high'",
+            "severity eq 'medium'",
+            "status eq 'new'",
+            "status eq 'inProgress'",
+            "vendorInformation/provider eq 'ASC'",
+        ]
+        # Check that at least one valid filter is present
+        assert any(f in args["$filter"] for f in valid_filters)
 
     def test_generate_example_args_odata_select(self):
         """Test example argument generation for OData $select."""
@@ -139,8 +153,20 @@ class TestDefenderAPIHarvester:
         }
 
         args = harvester._generate_example_args(params)
-        assert "id" in args["$select"]
-        assert "severity" in args["$select"]
+        # With randomization, select contains 2-4 fields from the valid set
+        valid_fields = [
+            "id",
+            "title",
+            "severity",
+            "status",
+            "assignedTo",
+            "createdDateTime",
+        ]
+        selected_fields = args["$select"].split(",")
+        # Should have 2-4 fields
+        assert 2 <= len(selected_fields) <= 4
+        # All selected fields should be from the valid set
+        assert all(field in valid_fields for field in selected_fields)
 
     def test_process_spec_generates_samples(self):
         """Test that process_spec generates training samples."""
