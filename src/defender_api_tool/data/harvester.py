@@ -191,7 +191,7 @@ class DefenderAPIHarvester:
     def _generate_example_args(self, params: dict[str, Any]) -> dict[str, Any]:
         """
         Generate randomized example arguments based on parameter definitions.
-        
+
         Now uses random values for IDs, integers, and booleans to prevent overfitting.
 
         Args:
@@ -216,9 +216,18 @@ class DefenderAPIHarvester:
                     "vendorInformation/provider eq 'ASC'",
                 ]
                 # Combine 1 or 2 random filters
-                args[name] = " and ".join(random.sample(filters, k=random.randint(1, 2)))
+                args[name] = " and ".join(
+                    random.sample(filters, k=random.randint(1, 2))
+                )
             elif name == "$select":
-                fields = ["id", "title", "severity", "status", "assignedTo", "createdDateTime"]
+                fields = [
+                    "id",
+                    "title",
+                    "severity",
+                    "status",
+                    "assignedTo",
+                    "createdDateTime",
+                ]
                 # Select random subset of fields
                 args[name] = ",".join(random.sample(fields, k=random.randint(2, 4)))
             elif name == "$top":
@@ -232,7 +241,7 @@ class DefenderAPIHarvester:
             elif name == "$search":
                 terms = ["malware", "ransomware", "phishing", "backdoor", "mimikatz"]
                 args[name] = f'"{random.choice(terms)}"'
-            
+
             # Handle security-specific parameters with random values
             elif name == "alertId":
                 # Generate a random alert ID format (mix of ID and hash)
@@ -257,7 +266,7 @@ class DefenderAPIHarvester:
                 args[name] = random.choice(kql_queries)
             elif name == "timeRange":
                 args[name] = random.choice(["P1D", "P7D", "P30D", "PT1H", "PT24H"])
-            
+
             # Handle standard types
             elif param_type == "integer":
                 args[name] = random.randint(1, 100)
